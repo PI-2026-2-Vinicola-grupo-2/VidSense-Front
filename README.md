@@ -2,7 +2,7 @@
 
 [Prototipo](https://preview--shiny-front-stuff.lovable.app/)
 
-Dashboard web do Projeto Integrador "Vinícola" (Inteligência de Dados no Vale do São Francisco). Consome a API REST do [Vinicola-Back](../Vinicola-Back) para autenticar usuários por perfil e exibir os dados climáticos (temperatura e umidade) coletados pelo dispositivo IoT.
+Dashboard web do Projeto Integrador "Vinícola" (Inteligência de Dados no Vale do São Francisco). Consome a API REST do [Vinicola-Back](https://github.com/PI-2026-2-Vinicola-grupo-2/Vinicola-Back.git) para autenticar usuários por perfil e exibir os dados climáticos (temperatura e umidade) coletados pelo dispositivo IoT.
 
 > **Status:** projeto em fase inicial. Este README descreve a arquitetura planejada; itens marcados com `[ ]` ainda não foram implementados.
 
@@ -33,7 +33,7 @@ O diagrama completo (arquivo para o draw.io) fica em `docs/arquitetura-vinicola.
 
 Não há dependências para instalar. É preciso apenas de um servidor estático local e da API rodando.
 
-1. Suba a API do [Vinicola-Back](../Vinicola-Back), que por padrão fica em `http://localhost:8000`.
+1. Suba a API do [Vinicola-Back](https://github.com/PI-2026-2-Vinicola-grupo-2/Vinicola-Back.git), que por padrão fica em `http://localhost:8000`.
 2. Clone este repositório:
    ```bash
    git clone <url-do-repo>
@@ -157,5 +157,5 @@ Códigos de erro que o front deve tratar:
 
 ## Repositórios relacionados
 
-- [Vinicola-Back](../Vinicola-Back): API FastAPI, autenticação, banco de dados e ingestão dos dados
-- [Vinicola-IoT](../Vinicola-IoT): dispositivo ESP32 + sensor DHT publicando no ThingSpeak
+- [Vinicola-Back](https://github.com/PI-2026-2-Vinicola-grupo-2/Vinicola-IoT.git): API FastAPI, autenticação, banco de dados e ingestão dos dados
+- [Vinicola-IoT](https://github.com/PI-2026-2-Vinicola-grupo-2/Vinicola-Back.git): dispositivo ESP32 + sensor DHT publicando no ThingSpeak
