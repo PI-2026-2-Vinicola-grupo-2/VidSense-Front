@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Histórico · Vinícola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="side card" id="menu"></aside>
+
+    <main>
+      <header class="topo">
+        <div>
+          <h1>Histórico</h1>
+          <p class="sub">Acompanhe a evolução do clima e consulte as leituras.</p>
+        </div>
+        <div class="seg">
+          <button class="on" data-r="7">7 dias</button>
+          <button data-r="30">30 dias</button>
+        </div>
+      </header>
+
+      <section class="kpis">
+        <article class="card kpi"><p class="rot">Temperatura média</p><p class="val" id="h-med">--</p></article>
+        <article class="card kpi"><p class="rot">Máxima</p><p class="val" id="h-max">--</p></article>
+        <article class="card kpi"><p class="rot">Mínima</p><p class="val" id="h-min">--</p></article>
+        <article class="card kpi"><p class="rot">Umidade média</p><p class="val" id="h-umi">--</p></article>
+      </section>
+
+      <article class="card">
+        <h2>Temperatura e umidade</h2>
+        <div class="chart"><canvas id="grafico"></canvas></div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Leituras</h2>
+          <select id="filtro" class="mini" aria-label="Filtrar por status">
+            <option value="todos">Todos os status</option>
+            <option value="normal">Normal</option>
+            <option value="atencao">Atenção</option>
+          </select>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Data e hora</th><th>Temperatura</th><th>Umidade</th><th>Status</th></tr></thead>
+            <tbody id="linhas"></tbody>
+          </table>
+        </div>
+      </article>
+    </main>
+  </div>
+
+  <script src="js/layout.js"></script>
+  <script src="js/historico.js"></script>
+</body>
+</html>

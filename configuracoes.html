@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Configurações · Vinícola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="side card" id="menu"></aside>
+
+    <main>
+      <header class="topo">
+        <div>
+          <h1>Configurações</h1>
+          <p class="sub">Ajuste seu perfil, limites de alerta e notificações.</p>
+        </div>
+        <button class="pill" id="salvar">Salvar alterações</button>
+      </header>
+
+      <section class="grid2">
+        <article class="card">
+          <h2>Perfil</h2>
+          <div class="campo"><label for="nome">Nome</label><input id="nome" value="Maria Souza"></div>
+          <div class="campo"><label for="email">E-mail</label><input id="email" type="email" value="maria@vinicola.com"></div>
+          <div class="campo">
+            <label for="perfil">Perfil de acesso</label>
+            <select id="perfil">
+              <option selected>Produtor / exportador</option>
+              <option>Analista de dados</option>
+              <option>Administrador</option>
+            </select>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Limites de alerta</h2>
+          <div class="campo"><label for="tmax">Temperatura máxima (°C)</label><input id="tmax" type="number" value="32"></div>
+          <div class="campo"><label for="umax">Umidade máxima (%)</label><input id="umax" type="number" value="75"></div>
+          <div class="campo"><label for="umin">Umidade mínima (%)</label><input id="umin" type="number" value="40"></div>
+        </article>
+      </section>
+
+      <section class="grid2">
+        <article class="card">
+          <h2>Notificações</h2>
+          <div class="linha"><span>Alertas por e-mail</span><input type="checkbox" class="sw" checked aria-label="Alertas por e-mail"></div>
+          <div class="linha"><span>Resumo diário do clima</span><input type="checkbox" class="sw" aria-label="Resumo diário"></div>
+          <div class="linha"><span>Aviso da janela de colheita</span><input type="checkbox" class="sw" checked aria-label="Aviso de colheita"></div>
+        </article>
+
+        <article class="card">
+          <h2>Fonte de dados</h2>
+          <div class="linha"><span>Sensor</span><strong>ESP32 + DHT</strong></div>
+          <div class="linha"><span>Canal ThingSpeak</span><strong>3500405</strong></div>
+          <div class="linha"><span>Intervalo de atualização</span><strong>30 segundos</strong></div>
+          <div class="linha"><span>Status</span><span class="tag ok">Conectado</span></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status">Alterações salvas (demonstração)</div>
+
+  <script src="js/layout.js"></script>
+  <script src="js/configuracoes.js"></script>
+</body>
+</html>

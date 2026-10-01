@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alertas · Vinícola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="side card" id="menu"></aside>
+
+    <main>
+      <header class="topo">
+        <div>
+          <h1>Alertas</h1>
+          <p class="sub" id="resumo"></p>
+        </div>
+        <button class="pill" id="todas">Marcar todas como lidas</button>
+      </header>
+
+      <div class="seg" id="filtros">
+        <button class="on" data-f="todos">Todos</button>
+        <button data-f="warn">Atenção</button>
+        <button data-f="info">Informativos</button>
+        <button data-f="ok">Resolvidos</button>
+      </div>
+
+      <section class="card"><div class="lista" id="lista"></div></section>
+    </main>
+  </div>
+
+  <script src="js/layout.js"></script>
+  <script src="js/alertas.js"></script>
+</body>
+</html>

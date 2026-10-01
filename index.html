@@ -11,22 +11,7 @@
 </head>
 <body>
   <div class="app">
-
-    <!-- Menu lateral (apenas visual) -->
-    <aside class="side card">
-      <div class="logo"><span class="logo-dot"></span>Vinícola</div>
-      <nav>
-        <a href="#" class="on">Dashboard</a>
-        <a href="#">Histórico</a>
-        <a href="#">Previsão de colheita</a>
-        <a href="#">Alertas</a>
-        <a href="#">Configurações</a>
-      </nav>
-      <div class="perfil">
-        <span class="avatar">M</span>
-        <div><strong>Maria Souza</strong><small>Produtora</small></div>
-      </div>
-    </aside>
+    <aside class="side card" id="menu"></aside>
 
     <main>
       <header class="topo">
@@ -38,7 +23,6 @@
         <button class="pill">Exportar relatório</button>
       </header>
 
-      <!-- Indicadores -->
       <section class="kpis">
         <article class="card kpi">
           <p class="rot">Temperatura</p>
@@ -62,7 +46,6 @@
         </article>
       </section>
 
-      <!-- Gráfico + alertas -->
       <section class="duo">
         <article class="card">
           <div class="card-head">
@@ -85,7 +68,6 @@
         </article>
       </section>
 
-      <!-- Tabela -->
       <section class="card">
         <h2>Últimas leituras</h2>
         <div class="scroll">
@@ -98,6 +80,7 @@
     </main>
   </div>
 
+  <script src="js/layout.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,161 +1,112 @@
-# Vinicola-Front
+# Vinícola-Front
 
-[Prototipo](https://preview--shiny-front-stuff.lovable.app/)
+Interface web do Projeto Integrador "Vinícola" (Inteligência de Dados no Vale do São Francisco). O dashboard mostra o clima do vinhedo (temperatura e umidade), o histórico de leituras, a previsão de colheita e os alertas.
 
-Dashboard web do Projeto Integrador "Vinícola" (Inteligência de Dados no Vale do São Francisco). Consome a API REST do [Vinicola-Back](https://github.com/PI-2026-2-Vinicola-grupo-2/Vinicola-Back.git) para autenticar usuários por perfil e exibir os dados climáticos (temperatura e umidade) coletados pelo dispositivo IoT.
-
-> **Status:** projeto em fase inicial. Este README descreve a arquitetura planejada; itens marcados com `[ ]` ainda não foram implementados.
+> **Status:** protótipo visual. As telas usam **dados fictícios** gerados no próprio JavaScript e ainda **não estão conectadas à API** do [Vinicola-Back](../Vinicola-Back). Não há login nesta versão.
 
 ## Stack
 
-- HTML5, CSS3 e JavaScript (sem framework, sem etapa de build)
-- `fetch()` para comunicação com a API REST (JSON sobre HTTPS)
-- Autenticação via JWT emitido pelo back-end
-- Gráficos com uma biblioteca JS via CDN (sugestão: Chart.js)
-- Hospedagem estática (a definir: Vercel, GitHub Pages ou similar)
+- HTML5, CSS3 e JavaScript puro (sem framework e sem etapa de build)
+- [Chart.js](https://www.chartjs.org/) via CDN para os gráficos
+- Fonte Inter via Google Fonts
+- Layout responsivo, com visual de cards translúcidos e cantos arredondados
 
-## Arquitetura
+## Estrutura do projeto
+
+```
+Vinicola-Front/
+├── index.html            # Dashboard
+├── historico.html        # Histórico de leituras
+├── previsao.html         # Previsão de colheita
+├── alertas.html          # Central de alertas
+├── configuracoes.html    # Perfil, limites e notificações
+├── css/
+│   └── style.css         # Estilos de todas as telas
+├── js/
+│   ├── layout.js         # Desenha o menu lateral e marca a página atual
+│   ├── app.js            # Dashboard: indicadores, gráfico e tabela
+│   ├── historico.js      # Resumo, gráfico 7/30 dias e filtro de status
+│   ├── previsao.js       # Cards dos dias da janela de colheita
+│   ├── alertas.js        # Lista, filtros e "marcar como lido"
+│   └── configuracoes.js  # Aviso ao salvar (demonstração)
+└── README.md
+```
+
+## Como rodar
+
+Não há dependências para instalar.
+
+1. Abra a pasta `Vinicola-Front` no VS Code.
+2. Instale a extensão **Live Server** (Ritwick Dey).
+3. Clique com o botão direito em `index.html` e escolha **Open with Live Server**.
+4. Acesse o endereço que o navegador abrir (normalmente `http://127.0.0.1:5500`).
+
+> Abra pelo Live Server e não com duplo clique no arquivo. É preciso conexão com a internet para carregar o Chart.js e a fonte.
+
+## Telas
+
+| Tela | Arquivo | O que mostra | O que já funciona |
+|---|---|---|---|
+| Dashboard | `index.html` | Temperatura, umidade, janela de colheita, alertas ativos, gráfico e últimas leituras | Alternância entre 24 h e 7 dias no gráfico |
+| Histórico | `historico.html` | Médias, máxima e mínima, gráfico e tabela de leituras | Seletor de 7 ou 30 dias e filtro por status |
+| Previsão de colheita | `previsao.html` | Janela ideal, condições dia a dia e maturação das uvas | Destaque automático do melhor dia |
+| Alertas | `alertas.html` | Lista de alertas por categoria | Filtros e "Marcar como lido" |
+| Configurações | `configuracoes.html` | Perfil, limites de alerta, notificações e fonte de dados | Interruptores e aviso ao salvar (não grava nada) |
+
+## Como o menu funciona
+
+O menu lateral não é escrito em cada HTML. Cada página tem apenas `<aside class="side card" id="menu"></aside>` e o `js/layout.js` preenche o conteúdo e destaca a página atual pelo nome do arquivo. Por isso:
+
+- Mantenha o `layout.js` carregado **antes** do script da própria página.
+- Para criar uma nova tela, adicione uma linha na lista `itens` do `layout.js`.
+- Os nomes dos arquivos HTML precisam ser iguais aos que estão em `layout.js`.
+
+## Arquitetura prevista
 
 ```
 Usuário → Navegador → Frontend (HTML/CSS/JS) → API FastAPI → ThingSpeak / PostgreSQL
 ```
 
-| Camada | Tecnologia | Responsabilidade |
+| Camada | Tecnologia | Situação |
 |---|---|---|
-| Cliente | Navegador (Chrome, Edge, Safari) | Carrega as páginas estáticas e executa o JavaScript |
-| Frontend | HTML · CSS · JavaScript | Telas de login, cadastro, dashboard e histórico |
-| Backend | Python 3.11 + FastAPI | Autenticação, RBAC e exposição dos dados via REST |
-| Dados | ThingSpeak (leituras IoT) e PostgreSQL (histórico e usuários, planejado) | Origem e persistência dos dados |
+| Frontend | HTML · CSS · JavaScript | Protótipo visual pronto |
+| Backend | Python 3.11 + FastAPI | Em desenvolvimento no Vinicola-Back |
+| Dados | ThingSpeak (leituras do ESP32) e PostgreSQL | ThingSpeak ativo, PostgreSQL planejado |
 
-O diagrama completo (arquivo para o draw.io) fica em `docs/arquitetura-vinicola.drawio`.
+## Integração com a API (próximos passos)
 
-## Como rodar localmente
+Hoje os dados vêm de funções que simulam leituras (por exemplo, `gerarDados` em `app.js` e `gerar` em `historico.js`). Para ligar à API, troque essas funções por chamadas `fetch` às rotas do back-end:
 
-Não há dependências para instalar. É preciso apenas de um servidor estático local e da API rodando.
-
-1. Suba a API do [Vinicola-Back](https://github.com/PI-2026-2-Vinicola-grupo-2/Vinicola-Back.git), que por padrão fica em `http://localhost:8000`.
-2. Clone este repositório:
-   ```bash
-   git clone <url-do-repo>
-   cd Vinicola-Front
-   ```
-3. Confira a URL da API em `js/config.js`:
-   ```js
-   export const API_BASE_URL = "http://localhost:8000";
-   ```
-4. Sirva a pasta na **porta 5500**, por exemplo com a extensão **Live Server** do VS Code (botão *Go Live*) ou:
-   ```bash
-   npx serve -l 5500
-   ```
-5. Acesse `http://localhost:5500`.
-
-> **Importante:** o back-end só aceita chamadas das origens listadas em `CORS_ORIGINS`. O valor padrão é `http://localhost:5500,http://127.0.0.1:5500`. Se usar outra porta ou domínio, adicione a origem no `.env` da API, senão o navegador bloqueia as requisições.
-
-## Estrutura de pastas (proposta)
-
-```
-Vinicola-Front/
-├── index.html              # página inicial / redireciona conforme a sessão
-├── login.html
-├── cadastro.html
-├── dashboard.html          # leitura atual de temperatura e umidade
-├── historico.html          # série histórica (perfis restritos)
-├── css/
-│   ├── base.css            # reset, variáveis e tipografia
-│   └── componentes.css     # cards, formulários, tabelas, botões
-├── js/
-│   ├── config.js           # API_BASE_URL
-│   ├── api.js              # wrapper do fetch (base URL, JSON, header Authorization)
-│   ├── auth.js             # login, logout, guarda do token e leitura do perfil
-│   ├── dashboard.js        # busca /clima/atual e atualiza os cards
-│   ├── historico.js        # busca /clima/historico e monta o gráfico
-│   └── charts.js           # funções de gráfico
-├── assets/                 # imagens e ícones
-└── docs/
-    └── arquitetura-vinicola.drawio
-```
-
-## Integração com a API
-
-A URL base é definida em `js/config.js`. A documentação interativa da API fica em `{API_BASE_URL}/docs`.
-
-| Rota | Método | Acesso | Uso no front |
+| Rota | Método | Acesso | Tela que vai usar |
 |---|---|---|---|
-| `/health` | GET | público | Verificar se a API está no ar |
-| `/auth/register` | POST | público | Tela de cadastro |
-| `/auth/login` | POST | público | Tela de login |
-| `/clima/atual` | GET | público | Cards do dashboard |
-| `/clima/historico?resultados=100` | GET | `analista_dados`, `administrador` | Tela de histórico |
+| `/clima/atual` | GET | público | Dashboard |
+| `/clima/historico?resultados=100` | GET | `analista_dados`, `administrador` | Histórico e gráfico do dashboard |
+| `/auth/register` | POST | público | Cadastro (a criar) |
+| `/auth/login` | POST | público | Login (a criar) |
 
-### Exemplos de payload
+Pontos de atenção na integração:
 
-**Cadastro** (`POST /auth/register`)
-```json
-{ "nome": "Maria", "email": "maria@exemplo.com", "senha": "********", "perfil": "produtor_exportador" }
-```
+- A URL base da API deve ficar em um único lugar (por exemplo, um `js/config.js`).
+- O back só aceita as origens listadas em `CORS_ORIGINS`. O padrão é `http://localhost:5500` e `http://127.0.0.1:5500`.
+- Rotas protegidas exigem o header `Authorization: Bearer <token>`.
+- Temperatura e umidade podem chegar como texto ou `null`, então converta com `Number()` antes de exibir.
+- Previsão de colheita e alertas dependem de funcionalidades que ainda serão criadas no back-end.
 
-**Login** (`POST /auth/login`) recebe `{ "email": "...", "senha": "..." }` em JSON e devolve:
-```json
-{ "access_token": "<jwt>", "token_type": "bearer" }
-```
-
-**Leitura climática** (`GET /clima/atual`)
-```json
-{ "temperatura": "27.5", "umidade": "61.0", "registrado_em": "2026-09-28T14:30:00Z" }
-```
-Os valores vêm do ThingSpeak e podem chegar como texto ou `null`. Converta com `Number()` e trate o caso vazio antes de exibir.
-
-### Chamadas autenticadas
-
-Rotas protegidas exigem o header `Authorization: Bearer <token>`:
-
-```js
-const resposta = await fetch(`${API_BASE_URL}/clima/historico?resultados=100`, {
-  headers: { Authorization: `Bearer ${token}` },
-});
-```
-
-Códigos de erro que o front deve tratar:
-
-| Código | Significado | Ação sugerida |
-|---|---|---|
-| `400` | Dados inválidos (ex.: e-mail já cadastrado) | Exibir a mensagem do campo `detail` |
-| `401` | Token ausente, inválido ou expirado | Limpar a sessão e redirecionar para o login |
-| `403` | Perfil sem permissão para a rota | Exibir aviso de acesso negado |
-
-## Autenticação e perfis
-
-1. O usuário faz login e recebe um JWT (validade padrão de 60 minutos).
-2. O front guarda o token no navegador e o envia em cada requisição protegida.
-3. O JWT carrega o perfil do usuário (campo `role`), que o front lê para decidir o que mostrar no menu e nas telas.
-
-| Perfil | Acesso previsto |
-|---|---|
-| `produtor_exportador` | Dashboard com a leitura atual |
-| `analista_dados` | Dashboard e histórico |
-| `administrador` | Acesso completo |
-
-> **Atenção:** esconder um botão ou uma página no front é só conveniência de interface. Quem realmente bloqueia o acesso é a API, que valida o token e o perfil em cada rota. Nunca coloque segredos no código JavaScript, pois tudo o que está no front é visível para o usuário.
-
-## Telas previstas
-
-- **Login e cadastro:** formulários com validação básica e mensagens de erro vindas da API.
-- **Dashboard:** cards com temperatura, umidade e horário da última leitura, com atualização periódica.
-- **Histórico:** gráfico e tabela das últimas leituras, restrito a `analista_dados` e `administrador`.
-- **Futuro:** janela ideal de colheita (RF06) e alertas (RF09), dependentes do back-end.
-
-## Status atual
+## Status
 
 - [x] Arquitetura técnica definida
-- [ ] Estrutura base do projeto e estilos globais
-- [ ] Tela de login e cadastro
-- [ ] Guarda de sessão e controle de acesso por perfil
-- [ ] Dashboard com leitura atual (`/clima/atual`)
-- [ ] Tela de histórico com gráfico (`/clima/historico`)
+- [x] Layout e estilos globais
+- [x] Dashboard
+- [x] Histórico
+- [x] Previsão de colheita
+- [x] Alertas
+- [x] Configurações
+- [ ] Login e cadastro
+- [ ] Integração com a API (`/clima/atual` e `/clima/historico`)
+- [ ] Controle de acesso por perfil
 - [ ] Deploy do front-end
-- [ ] Telas de previsão de colheita e alertas (dependem do back-end)
 
 ## Repositórios relacionados
 
-- [Vinicola-Back](https://github.com/PI-2026-2-Vinicola-grupo-2/Vinicola-IoT.git): API FastAPI, autenticação, banco de dados e ingestão dos dados
-- [Vinicola-IoT](https://github.com/PI-2026-2-Vinicola-grupo-2/Vinicola-Back.git): dispositivo ESP32 + sensor DHT publicando no ThingSpeak
+- [Vinicola-Back](../Vinicola-Back): API FastAPI, autenticação e ingestão dos dados
+- [Vinicola-IoT](../Vinicola-IoT): ESP32 com sensor DHT publicando no ThingSpeak
