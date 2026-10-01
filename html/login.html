@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · Vinícola</title>
+  <link rel="icon" href="imagens/logo-icone.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="login">
+
+    <!-- Painel de apresentação -->
+    <section class="login-brand">
+      <div class="logo">
+        <img src="imagens/logo-icone.svg" alt="" width="40" height="40">Vinícola
+      </div>
+      <div>
+        <h1>O clima do seu vinhedo, em tempo real.</h1>
+        <p>Acompanhe temperatura e umidade, receba alertas e descubra a melhor janela de colheita.</p>
+      </div>
+      <div class="brand-stats">
+        <div><strong>24 h</strong><span>de monitoramento</span></div>
+        <div><strong>30 s</strong><span>entre leituras</span></div>
+        <div><strong>87%</strong><span>de confiança na previsão</span></div>
+      </div>
+    </section>
+
+    <!-- Formulário -->
+    <section class="login-form">
+      <div class="card login-card">
+        <h2 class="login-titulo">Bem-vinda de volta</h2>
+        <p class="sub">Escolha seu perfil e entre na plataforma.</p>
+
+        <p class="rot lbl">Entrar como</p>
+        <div class="seg perfis" id="perfis">
+          <button type="button" class="on" data-p="produtor">Produtor</button>
+          <button type="button" data-p="analista">Analista</button>
+          <button type="button" data-p="admin">Admin</button>
+        </div>
+
+        <form id="form">
+          <div class="campo">
+            <label for="email">E-mail</label>
+            <input id="email" type="email" placeholder="voce@vinicola.com" autocomplete="email">
+          </div>
+          <div class="campo">
+            <label for="senha">Senha</label>
+            <input id="senha" type="password" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <div class="linha-opcoes">
+            <a href="#" class="link">Esqueci a senha</a>
+          </div>
+          <button type="submit" class="pill grande">Entrar</button>
+        </form>
+
+        <p class="rodape-login">Ainda não tem conta? <a href="#" class="link">Criar conta</a></p>
+        <p class="demo">Protótipo visual: nenhum dado é verificado.</p>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/login.js"></script>
+</body>
+</html>
