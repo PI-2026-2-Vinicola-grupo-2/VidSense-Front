@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vinícola · Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Menu lateral (apenas visual) -->
+    <aside class="side card">
+      <div class="logo"><span class="logo-dot"></span>Vinícola</div>
+      <nav>
+        <a href="#" class="on">Dashboard</a>
+        <a href="#">Histórico</a>
+        <a href="#">Previsão de colheita</a>
+        <a href="#">Alertas</a>
+        <a href="#">Configurações</a>
+      </nav>
+      <div class="perfil">
+        <span class="avatar">M</span>
+        <div><strong>Maria Souza</strong><small>Produtora</small></div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topo">
+        <div>
+          <p class="data" id="data"></p>
+          <h1>Bom dia, Maria 👋</h1>
+          <p class="sub">Veja como está o clima no seu vinhedo agora.</p>
+        </div>
+        <button class="pill">Exportar relatório</button>
+      </header>
+
+      <!-- Indicadores -->
+      <section class="kpis">
+        <article class="card kpi">
+          <p class="rot">Temperatura</p>
+          <p class="val" id="k-temp">--</p>
+          <p class="tag ok">▲ 1,2° na última hora</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Umidade do ar</p>
+          <p class="val" id="k-umi">--</p>
+          <div class="barra"><i id="k-barra"></i></div>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Janela de colheita</p>
+          <p class="val sm">12 a 18 mar</p>
+          <p class="tag ok">Condições ideais</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Alertas ativos</p>
+          <p class="val">2</p>
+          <p class="tag warn">1 requer atenção</p>
+        </article>
+      </section>
+
+      <!-- Gráfico + alertas -->
+      <section class="duo">
+        <article class="card">
+          <div class="card-head">
+            <h2>Clima ao longo do tempo</h2>
+            <div class="seg">
+              <button class="on" data-r="24">24 h</button>
+              <button data-r="7">7 dias</button>
+            </div>
+          </div>
+          <div class="chart"><canvas id="grafico"></canvas></div>
+        </article>
+
+        <article class="card">
+          <h2>Alertas recentes</h2>
+          <ul class="alertas">
+            <li><span class="dot warn"></span><div><strong>Umidade acima de 80%</strong><small>Risco de fungos · há 2 h</small></div></li>
+            <li><span class="dot ok"></span><div><strong>Temperatura estável</strong><small>Dentro da faixa ideal · há 5 h</small></div></li>
+            <li><span class="dot info"></span><div><strong>Previsão atualizada</strong><small>Colheita sugerida para 12/03 · ontem</small></div></li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- Tabela -->
+      <section class="card">
+        <h2>Últimas leituras</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Horário</th><th>Temperatura</th><th>Umidade</th><th>Status</th></tr></thead>
+            <tbody id="linhas"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
