@@ -1,25 +1,33 @@
-// Apenas visual: nenhum dado é validado, o botão Entrar leva ao dashboard
-const perfis = {
-  produtor: { nome: "Maria Souza", cargo: "Produtora" },
-  analista: { nome: "Carlos Lima", cargo: "Analista de dados" },
-  admin: { nome: "Ana Costa", cargo: "Administradora" },
+const CARGOS = {
+  produtor_exportador: "Produtor/Exportador",
+  analista_dados: "Analista de dados",
+  administrador: "Administrador",
 };
-let escolhido = "produtor";
 
-document.querySelectorAll("#perfis button").forEach((b) => {
-  b.onclick = () => {
-    document.querySelectorAll("#perfis button").forEach((x) => x.classList.remove("on"));
-    b.classList.add("on");
-    escolhido = b.dataset.p;
-  };
-});
+const form = document.getElementById("form");
+const erroEl = document.getElementById("erro");
 
-document.getElementById("form").addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  // Guarda o perfil escolhido só para o menu lateral exibir o nome
-  sessionStorage.setItem("usuario", JSON.stringify(perfis[escolhido]));
-  location.href = "index.html";
+  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value;
+  if (erroEl) erroEl.textContent = "";
+
+  try {
+    const dados = await apiFetch("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, senha }),
+    });
+    salvarSessao({
+      access_token: dados.access_token,
+      nome: dados.nome,
+      perfil: dados.perfil,
+      cargo: CARGOS[dados.perfil] || dados.perfil,
+    });
+    location.href = "index.html";
+  } catch (err) {
+    if (erroEl) erroEl.textContent = "E-mail ou senha inválidos.";
+  }
 });
 
-// Links de exemplo não fazem nada
 document.querySelectorAll('a[href="#"]').forEach((a) => a.addEventListener("click", (e) => e.preventDefault()));

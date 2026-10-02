@@ -1,4 +1,3 @@
-// Desenha o menu lateral e marca a página atual
 (function () {
   const itens = [
     ["index.html", "Dashboard"],
@@ -9,11 +8,11 @@
   ];
   const atual = location.pathname.split("/").pop() || "index.html";
 
-  // Perfil escolhido na tela de login (se não houver, usa o padrão)
-  let usuario = { nome: "Maria Souza", cargo: "Produtora" };
-  try {
-    usuario = JSON.parse(sessionStorage.getItem("usuario")) || usuario;
-  } catch (e) {}
+  const sessao = getSessao();
+  if (!sessao) {
+    location.href = "login.html";
+    return;
+  }
 
   document.getElementById("menu").innerHTML = `
     <div class="logo">
@@ -25,8 +24,14 @@
       ).join("")}
     </nav>
     <div class="perfil">
-      <span class="avatar">${usuario.nome[0]}</span>
-      <div class="grow"><strong>${usuario.nome}</strong><small>${usuario.cargo}</small></div>
-      <a href="login.html" class="sair" title="Sair" aria-label="Sair">Sair</a>
+      <span class="avatar">${sessao.nome[0]}</span>
+      <div class="grow"><strong>${sessao.nome}</strong><small>${sessao.cargo}</small></div>
+      <a href="#" class="sair" title="Sair" aria-label="Sair" id="sair">Sair</a>
     </div>`;
+
+  document.getElementById("sair").addEventListener("click", (e) => {
+    e.preventDefault();
+    limparSessao();
+    location.href = "login.html";
+  });
 })();
