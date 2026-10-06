@@ -1,112 +1,183 @@
-# Vinícola-Front
+# Vinícola — Frontend
 
-Interface web do Projeto Integrador "Vinícola" (Inteligência de Dados no Vale do São Francisco). O dashboard mostra o clima do vinhedo (temperatura e umidade), o histórico de leituras, a previsão de colheita e os alertas.
+Interface web do **Projeto Integrador — Inteligência de Dados no Vale do São Francisco**.
 
-> **Status:** protótipo visual. As telas usam **dados fictícios** gerados no próprio JavaScript e ainda **não estão conectadas à API** do [Vinicola-Back](../Vinicola-Back). Não há login nesta versão.
+O frontend apresenta o dashboard climático e as funcionalidades de acompanhamento das condições do vinhedo, consumindo a API REST do backend hospedado em produção no Render.
+
+## Visão geral
+
+O frontend foi desenvolvido sem framework, utilizando HTML, CSS e JavaScript puro. A aplicação se comunica com o backend por HTTP/HTTPS e utiliza autenticação baseada em JWT.
+
+### Arquitetura
+
+```text
+Usuário
+   │
+   ▼
+Navegador
+   │
+   ▼
+Frontend — HTML/CSS/JavaScript
+   │
+   │ HTTPS + JWT
+   ▼
+Backend FastAPI — Render
+   │
+   ▼
+Supabase PostgreSQL
+   │
+   └──────────────► ThingSpeak / dados climáticos
+```
 
 ## Stack
 
-- HTML5, CSS3 e JavaScript puro (sem framework e sem etapa de build)
-- [Chart.js](https://www.chartjs.org/) via CDN para os gráficos
-- Fonte Inter via Google Fonts
-- Layout responsivo, com visual de cards translúcidos e cantos arredondados
+- **HTML5** — estrutura das páginas
+- **CSS3** — estilos e layout responsivo
+- **JavaScript** — lógica da aplicação e integração com a API
+- **Chart.js** — gráficos
+- **Google Fonts / Inter** — tipografia
+- **FastAPI** — backend consumido pela aplicação
+- **JWT** — autenticação
+
+## Funcionalidades
+
+| Tela | Arquivo | Descrição |
+|---|---|---|
+| Login | `login.html` | Autenticação do usuário através da API |
+| Dashboard | `index.html` | Visualização de temperatura, umidade, alertas e indicadores |
+| Histórico | `historico.html` | Consulta e visualização do histórico climático |
+| Previsão de colheita | `previsao.html` | Visualização da previsão/janela de colheita |
+| Alertas | `alertas.html` | Visualização e gerenciamento dos alertas da interface |
+| Configurações | `configuracoes.html` | Configurações e preferências apresentadas pela interface |
+
+## Integração com a API
+
+A URL de produção utilizada atualmente pelo frontend é:
+
+```text
+https://vinicola-back.onrender.com
+```
+
+A configuração encontra-se em:
+
+```text
+js/api.js
+```
+
+O helper `apiFetch()` centraliza as requisições e adiciona automaticamente o token JWT quando existe uma sessão válida.
+
+### Principais endpoints utilizados/disponíveis
+
+| Endpoint | Método | Acesso | Finalidade |
+|---|---|---|---|
+| `/health` | GET | Público | Verificar disponibilidade da API |
+| `/auth/login` | POST | Público | Autenticar usuário |
+| `/auth/register` | POST | Público | Cadastrar usuário |
+| `/clima/atual` | GET | Público | Consultar última leitura climática |
+| `/clima/historico` | GET | Autenticado | Consultar histórico climático |
+
+> As permissões das rotas são controladas pelo backend. O frontend apenas envia o token JWT recebido durante o login.
+
+## Autenticação
+
+O fluxo de autenticação funciona da seguinte forma:
+
+1. O usuário informa e-mail e senha na tela de login.
+2. O frontend envia as credenciais para `/auth/login`.
+3. O backend valida o usuário.
+4. O backend retorna um JWT e informações básicas do usuário.
+5. O frontend mantém a sessão no `sessionStorage`.
+6. As requisições autenticadas recebem o header:
+
+```http
+Authorization: Bearer <token>
+```
+
+Se a API retornar `401 Unauthorized`, a sessão é removida e o usuário é direcionado novamente para a tela de login.
 
 ## Estrutura do projeto
 
-```
+```text
 Vinicola-Front/
-├── index.html            # Dashboard
-├── historico.html        # Histórico de leituras
-├── previsao.html         # Previsão de colheita
-├── alertas.html          # Central de alertas
-├── configuracoes.html    # Perfil, limites e notificações
+├── index.html
+├── login.html
+├── historico.html
+├── previsao.html
+├── alertas.html
+├── configuracoes.html
 ├── css/
-│   └── style.css         # Estilos de todas as telas
+│   └── style.css
+├── imagens/
+│   ├── logo-completo.svg
+│   └── logo-icone.svg
 ├── js/
-│   ├── layout.js         # Desenha o menu lateral e marca a página atual
-│   ├── app.js            # Dashboard: indicadores, gráfico e tabela
-│   ├── historico.js      # Resumo, gráfico 7/30 dias e filtro de status
-│   ├── previsao.js       # Cards dos dias da janela de colheita
-│   ├── alertas.js        # Lista, filtros e "marcar como lido"
-│   └── configuracoes.js  # Aviso ao salvar (demonstração)
+│   ├── api.js
+│   ├── app.js
+│   ├── alertas.js
+│   ├── configuracoes.js
+│   ├── historico.js
+│   ├── layout.js
+│   ├── login.js
+│   └── previsao.js
 └── README.md
 ```
 
-## Como rodar
+## Como executar localmente
 
-Não há dependências para instalar.
+O projeto não possui etapa de build nem dependências Node.js.
 
-1. Abra a pasta `Vinicola-Front` no VS Code.
-2. Instale a extensão **Live Server** (Ritwick Dey).
-3. Clique com o botão direito em `index.html` e escolha **Open with Live Server**.
-4. Acesse o endereço que o navegador abrir (normalmente `http://127.0.0.1:5500`).
+### Opção 1 — VS Code + Live Server
 
-> Abra pelo Live Server e não com duplo clique no arquivo. É preciso conexão com a internet para carregar o Chart.js e a fonte.
+1. Abra o projeto no VS Code.
+2. Instale a extensão **Live Server**.
+3. Abra `index.html` ou `login.html` com **Open with Live Server**.
+4. Acesse a URL disponibilizada pelo Live Server.
 
-## Telas
+Exemplo:
 
-| Tela | Arquivo | O que mostra | O que já funciona |
-|---|---|---|---|
-| Dashboard | `index.html` | Temperatura, umidade, janela de colheita, alertas ativos, gráfico e últimas leituras | Alternância entre 24 h e 7 dias no gráfico |
-| Histórico | `historico.html` | Médias, máxima e mínima, gráfico e tabela de leituras | Seletor de 7 ou 30 dias e filtro por status |
-| Previsão de colheita | `previsao.html` | Janela ideal, condições dia a dia e maturação das uvas | Destaque automático do melhor dia |
-| Alertas | `alertas.html` | Lista de alertas por categoria | Filtros e "Marcar como lido" |
-| Configurações | `configuracoes.html` | Perfil, limites de alerta, notificações e fonte de dados | Interruptores e aviso ao salvar (não grava nada) |
-
-## Como o menu funciona
-
-O menu lateral não é escrito em cada HTML. Cada página tem apenas `<aside class="side card" id="menu"></aside>` e o `js/layout.js` preenche o conteúdo e destaca a página atual pelo nome do arquivo. Por isso:
-
-- Mantenha o `layout.js` carregado **antes** do script da própria página.
-- Para criar uma nova tela, adicione uma linha na lista `itens` do `layout.js`.
-- Os nomes dos arquivos HTML precisam ser iguais aos que estão em `layout.js`.
-
-## Arquitetura prevista
-
-```
-Usuário → Navegador → Frontend (HTML/CSS/JS) → API FastAPI → ThingSpeak / PostgreSQL
+```text
+http://127.0.0.1:5500
 ```
 
-| Camada | Tecnologia | Situação |
-|---|---|---|
-| Frontend | HTML · CSS · JavaScript | Protótipo visual pronto |
-| Backend | Python 3.11 + FastAPI | Em desenvolvimento no Vinicola-Back |
-| Dados | ThingSpeak (leituras do ESP32) e PostgreSQL | ThingSpeak ativo, PostgreSQL planejado |
+### Opção 2 — servidor HTTP local
 
-## Integração com a API (próximos passos)
+Também é possível utilizar qualquer servidor HTTP estático.
 
-Hoje os dados vêm de funções que simulam leituras (por exemplo, `gerarDados` em `app.js` e `gerar` em `historico.js`). Para ligar à API, troque essas funções por chamadas `fetch` às rotas do back-end:
+## Configuração de CORS
 
-| Rota | Método | Acesso | Tela que vai usar |
-|---|---|---|---|
-| `/clima/atual` | GET | público | Dashboard |
-| `/clima/historico?resultados=100` | GET | `analista_dados`, `administrador` | Histórico e gráfico do dashboard |
-| `/auth/register` | POST | público | Cadastro (a criar) |
-| `/auth/login` | POST | público | Login (a criar) |
+Como o frontend realiza requisições para a API, a origem utilizada localmente precisa estar permitida no backend através da variável `CORS_ORIGINS`.
 
-Pontos de atenção na integração:
+Exemplo:
 
-- A URL base da API deve ficar em um único lugar (por exemplo, um `js/config.js`).
-- O back só aceita as origens listadas em `CORS_ORIGINS`. O padrão é `http://localhost:5500` e `http://127.0.0.1:5500`.
-- Rotas protegidas exigem o header `Authorization: Bearer <token>`.
-- Temperatura e umidade podem chegar como texto ou `null`, então converta com `Number()` antes de exibir.
-- Previsão de colheita e alertas dependem de funcionalidades que ainda serão criadas no back-end.
+```text
+http://localhost:5500,http://127.0.0.1:5500
+```
 
-## Status
+Em produção, a origem do domínio onde o frontend estiver hospedado deverá ser adicionada à configuração de CORS da API.
 
-- [x] Arquitetura técnica definida
-- [x] Layout e estilos globais
+## Status atual
+
+- [x] Interface principal
 - [x] Dashboard
 - [x] Histórico
 - [x] Previsão de colheita
 - [x] Alertas
 - [x] Configurações
-- [ ] Login e cadastro
-- [ ] Integração com a API (`/clima/atual` e `/clima/historico`)
-- [ ] Controle de acesso por perfil
-- [ ] Deploy do front-end
+- [x] Tela de login
+- [x] Integração com a API FastAPI
+- [x] Autenticação JWT no frontend
+- [x] Tratamento de sessão expirada
+- [ ] Deploy próprio do frontend
+- [ ] Evolução das funcionalidades de previsão e alertas integradas ao backend
+
+## Segurança
+
+O frontend não deve armazenar secrets da infraestrutura, chaves do ThingSpeak, senha do banco ou `JWT_SECRET_KEY`.
+
+O token de autenticação recebido do backend é mantido na sessão do navegador para permitir as requisições autenticadas.
 
 ## Repositórios relacionados
 
-- [Vinicola-Back](../Vinicola-Back): API FastAPI, autenticação e ingestão dos dados
-- [Vinicola-IoT](../Vinicola-IoT): ESP32 com sensor DHT publicando no ThingSpeak
+- **Backend:** `Vinicola-Back` — API FastAPI, autenticação, RBAC e acesso ao banco.
+- **IoT:** `Vinicola-IoT` — ESP32 + DHT11 e envio das leituras ao ThingSpeak.
+- **Banco:** Supabase PostgreSQL — banco utilizado pelo backend em produção.
