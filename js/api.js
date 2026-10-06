@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000"; // troque quando o Back for pra nuvem
+const API_BASE = "https://vinicola-back.onrender.com";
 
 function getSessao() {
   try {
