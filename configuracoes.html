@@ -22,17 +22,16 @@
         <button class="pill" id="salvar">Salvar alterações</button>
       </header>
 
-      <section class="grid2">
-        <article class="card">
+             <article class="card">
           <h2>Perfil</h2>
-          <div class="campo"><label for="nome">Nome</label><input id="nome" value="Maria Souza"></div>
-          <div class="campo"><label for="email">E-mail</label><input id="email" type="email" value="maria@vinicola.com"></div>
+          <div class="campo"><label for="nome">Nome</label><input id="nome"></div>
+          <div class="campo"><label for="email">E-mail</label><input id="email" type="email"></div>
           <div class="campo">
             <label for="perfil">Perfil de acesso</label>
-            <select id="perfil">
-              <option selected>Produtor / exportador</option>
-              <option>Analista de dados</option>
-              <option>Administrador</option>
+            <select id="perfil" disabled>
+              <option value="produtor_exportador">Produtor / exportador</option>
+              <option value="analista_dados">Analista de dados</option>
+              <option value="administrador">Administrador</option>
             </select>
           </div>
         </article>
@@ -57,7 +56,7 @@
           <h2>Fonte de dados</h2>
           <div class="linha"><span>Sensor</span><strong>ESP32 + DHT</strong></div>
           <div class="linha"><span>Canal ThingSpeak</span><strong>3500405</strong></div>
-          <div class="linha"><span>Intervalo de atualização</span><strong>30 segundos</strong></div>
+          <div class="linha"><span>Intervalo de atualização</span><strong>16 segundos</strong></div>
           <div class="linha"><span>Status</span><span class="tag ok">Conectado</span></div>
         </article>
       </section>

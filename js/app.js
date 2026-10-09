@@ -1,13 +1,28 @@
 const $ = (id) => document.getElementById(id);
 let grafico;
 
+const sessao = getSessao();
+const podeHistorico = sessao?.perfil !== "produtor_exportador";
+
+// O ThingSpeak envia números como texto: converte com segurança
+const num = (v) => (v === null || v === undefined || v === "" || isNaN(Number(v)) ? null : Number(v));
+const normalizar = (l) => ({ registrado_em: l.registrado_em, temperatura: num(l.temperatura), umidade: num(l.umidade) });
 const formatarHora = (iso) => new Date(iso).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
+// Saudação com o nome de quem está logado
+(function () {
+  const h = new Date().getHours();
+  const saudacao = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+  const nome = (sessao?.nome || "").split(" ")[0];
+  $("saudacao").textContent = `${saudacao}${nome ? ", " + nome : ""} 👋`;
+})();
+
 async function carregarAtual() {
-  const atual = await apiFetch("/clima/atual");
+  const atual = normalizar(await apiFetch("/clima/atual"));
   $("k-temp").textContent = atual.temperatura != null ? `${atual.temperatura.toFixed(1)}°C` : "--";
   $("k-umi").textContent = atual.umidade != null ? `${Math.round(atual.umidade)}%` : "--";
   requestAnimationFrame(() => ($("k-barra").style.width = `${atual.umidade ?? 0}%`));
+  return atual;
 }
 
 function desenharGrafico(leituras) {
@@ -50,6 +65,7 @@ function desenharTabela(leituras) {
 async function atualizarPeriodo(intervalo) {
   const resultados = intervalo === 7 ? 200 : 50;
   const leituras = (await apiFetch(`/clima/historico?resultados=${resultados}`))
+    .map(normalizar)
     .filter((l) => l.temperatura != null && l.umidade != null);
   desenharGrafico(leituras);
   desenharTabela(leituras);
@@ -57,13 +73,26 @@ async function atualizarPeriodo(intervalo) {
 
 $("data").textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
-document.querySelectorAll(".seg button").forEach((b) => {
-  b.onclick = () => {
-    document.querySelectorAll(".seg button").forEach((x) => x.classList.remove("on"));
-    b.classList.add("on");
-    atualizarPeriodo(Number(b.dataset.r));
-  };
-});
+if (podeHistorico) {
+  document.querySelectorAll(".seg button").forEach((b) => {
+    b.onclick = () => {
+      document.querySelectorAll(".seg button").forEach((x) => x.classList.remove("on"));
+      b.classList.add("on");
+      atualizarPeriodo(Number(b.dataset.r)).catch(() => {});
+    };
+  });
+  atualizarPeriodo(24).catch(() => {
+    $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
+  });
+} else {
+  // Produtor não tem acesso ao histórico na API: mostra só a leitura atual
+  document.querySelector(".card-head .seg").hidden = true;
+  $("grafico").parentElement.innerHTML =
+    `<p class="rot">O gráfico de histórico está disponível para os perfis Analista de dados e Administrador.</p>`;
+}
 
-carregarAtual().catch(() => {});
-atualizarPeriodo(24).catch(() => { $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`; });
+carregarAtual()
+  .then((atual) => { if (!podeHistorico && atual.temperatura != null) desenharTabela([atual]); })
+  .catch(() => {
+    if (!podeHistorico) $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
+  });

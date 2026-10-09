@@ -1,3 +1,4 @@
+if (getSessao()?.perfil === "produtor_exportador") location.replace("index.html");
 const $ = (id) => document.getElementById(id);
 let grafico;
 let leiturasAtuais = [];
@@ -56,10 +57,13 @@ function tabela() {
 async function carregar(dias) {
   const resultados = dias === 7 ? 200 : 50;
   const dados = await apiFetch(`/clima/historico?resultados=${resultados}`);
-  leiturasAtuais = dados.filter((d) => d.temperatura != null && d.umidade != null);
-  desenharResumo(leiturasAtuais);
-  desenharGrafico(leiturasAtuais, dias);
-  tabela();
+    leiturasAtuais = dados
+    .map((d) => ({
+      registrado_em: d.registrado_em,
+      temperatura: d.temperatura == null || d.temperatura === "" ? null : Number(d.temperatura),
+      umidade: d.umidade == null || d.umidade === "" ? null : Number(d.umidade),
+    }))
+    .filter((d) => d.temperatura != null && d.umidade != null && !isNaN(d.temperatura) && !isNaN(d.umidade));
 }
 
 document.querySelectorAll(".seg button").forEach((b) => {

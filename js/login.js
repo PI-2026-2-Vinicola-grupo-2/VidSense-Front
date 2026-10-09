@@ -21,6 +21,7 @@ form.addEventListener("submit", async (e) => {
     salvarSessao({
       access_token: dados.access_token,
       nome: dados.nome,
+      email,
       perfil: dados.perfil,
       cargo: CARGOS[dados.perfil] || dados.perfil,
     });
