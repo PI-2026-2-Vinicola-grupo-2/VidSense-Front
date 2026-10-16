@@ -1,4 +1,3 @@
-if (getSessao()?.perfil === "produtor_exportador") location.replace("index.html");
 const $ = (id) => document.getElementById(id);
 let grafico;
 let leiturasAtuais = [];
@@ -69,13 +68,26 @@ async function carregar(dias) {
   tabela();
 }
 
+async function iniciar(dias) {
+  try {
+    await carregar(dias);
+  } catch (e) {
+    const semPermissao = /permiss|403/i.test(e.message || "");
+    $("linhas").innerHTML = `<tr><td colspan="4">${
+      semPermissao
+        ? "Seu perfil não tem permissão para ver o histórico. Entre com uma conta de Analista de dados ou Administrador."
+        : "Não foi possível carregar os dados. Tente novamente em instantes."
+    }</td></tr>`;
+  }
+}
+
 document.querySelectorAll(".seg button").forEach((b) => {
   b.onclick = () => {
     document.querySelectorAll(".seg button").forEach((x) => x.classList.remove("on"));
     b.classList.add("on");
-    carregar(Number(b.dataset.r));
+    iniciar(Number(b.dataset.r));
   };
 });
 $("filtro").onchange = tabela;
 
-carregar(7).catch(() => { $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`; });
+iniciar(7);
