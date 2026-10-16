@@ -181,3 +181,18 @@ O token de autenticação recebido do backend é mantido na sessão do navegador
 - **Backend:** `Vinicola-Back` — API FastAPI, autenticação, RBAC e acesso ao banco.
 - **IoT:** `Vinicola-IoT` — ESP32 + DHT11 e envio das leituras ao ThingSpeak.
 - **Banco:** Supabase PostgreSQL — banco utilizado pelo backend em produção.
+
+## Integração com o Vinicola-Back
+
+A interface consome a API FastAPI em `https://vinicola-back.onrender.com`.
+
+Rotas usadas pelo Front:
+- `POST /auth/login`
+- `GET /clima/atual`
+- `GET /clima/historico`
+- `GET /alertas`
+- `GET /previsao/janela-colheita`
+
+As páginas de Alertas e Previsão não usam mais dados fictícios: elas consultam a API. A previsão atual é uma **estimativa baseada no histórico do ThingSpeak**, não o modelo de Machine Learning final do PI.
+
+Se o Front for hospedado em outro domínio, esse domínio precisa ser adicionado à variável `CORS_ORIGINS` do Render.

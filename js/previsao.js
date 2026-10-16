@@ -1,23 +1,29 @@
-// Previsão fictícia: [dia, temperatura, umidade, ícone, pontuação]
-const dias = [
-  ["Qui 12", 25, 60, "☀️", 90],
-  ["Sex 13", 25, 57, "☀️", 94],
-  ["Sáb 14", 24, 58, "⛅", 96],
-  ["Dom 15", 24, 61, "☀️", 95],
-  ["Seg 16", 26, 59, "☀️", 92],
-  ["Ter 17", 27, 63, "⛅", 89],
-  ["Qua 18", 27, 66, "🌤️", 85],
-];
+const $ = (id) => document.getElementById(id);
 
-// Destaca o dia com a maior pontuação
-const melhor = dias.reduce((a, b) => (b[4] > a[4] ? b : a));
-document.getElementById("melhor").textContent = melhor[0];
+function dataLabel(iso) {
+  const d = new Date(`${iso}T12:00:00`);
+  return d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit" }).replace(".", "");
+}
 
-document.getElementById("dias").innerHTML = dias.map(([nome, t, u, ic, p]) => `
-  <div class="dia ${nome === melhor[0] ? "best" : ""}">
-    <small>${nome}</small>
-    <div class="ic">${ic}</div>
-    <strong>${t}°C</strong>
-    <small>${u}% umid.</small>
-    <span class="tag ok">${p} pts</span>
-  </div>`).join("");
+async function carregar() {
+  try {
+    const dados = await apiFetch("/previsao/janela-colheita");
+    $("melhor").textContent = dataLabel(dados.melhor_dia);
+    const confianca = document.querySelector("#melhor")?.parentElement;
+    if (confianca) confianca.innerHTML = `Confiança da estimativa: <strong>${dados.confianca}%</strong> · Melhor dia: <strong id="melhor">${dataLabel(dados.melhor_dia)}</strong>`;
+
+    $("dias").innerHTML = dados.dias.map((d) => `
+      <div class="dia ${d.data === dados.melhor_dia ? "best" : ""}">
+        <small>${dataLabel(d.data)}</small>
+        <div class="ic">${d.icone}</div>
+        <strong>${d.temperatura}°C</strong>
+        <small>${Math.round(d.umidade)}% umid.</small>
+        <span class="tag ok">${d.pontuacao} pts</span>
+      </div>`).join("");
+  } catch (e) {
+    $("melhor").textContent = "--";
+    $("dias").innerHTML = `<p class="rot">Não foi possível carregar a estimativa.</p>`;
+  }
+}
+
+carregar();

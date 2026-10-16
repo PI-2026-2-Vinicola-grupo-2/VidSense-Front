@@ -64,6 +64,9 @@ async function carregar(dias) {
       umidade: d.umidade == null || d.umidade === "" ? null : Number(d.umidade),
     }))
     .filter((d) => d.temperatura != null && d.umidade != null && !isNaN(d.temperatura) && !isNaN(d.umidade));
+  desenharResumo(leiturasAtuais);
+  desenharGrafico(leiturasAtuais, dias);
+  tabela();
 }
 
 document.querySelectorAll(".seg button").forEach((b) => {

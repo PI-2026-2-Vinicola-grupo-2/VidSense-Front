@@ -9,7 +9,7 @@
   const atual = location.pathname.split("/").pop() || "index.html";
 
   const sessao = getSessao();
-  if (!sessao) {const visiveis = itens.filter(([href]) => !(href === "historico.html" && sessao.perfil === "produtor_exportador"));
+  if (!sessao) {
     location.href = "login.html";
     return;
   }
