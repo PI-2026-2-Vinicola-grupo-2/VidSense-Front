@@ -1,4 +1,5 @@
 let alertas = [];
+let erroCarregamento = false;
 const nomes = { warn: "Atenção", info: "Info", ok: "Resolvido" };
 let filtro = "todos";
 const $ = (id) => document.getElementById(id);
@@ -6,6 +7,11 @@ const $ = (id) => document.getElementById(id);
 function chaveLida(id) { return `alerta-lido-${id}`; }
 
 function desenhar() {
+  if (erroCarregamento) {
+    $("resumo").textContent = "Não foi possível carregar os alertas.";
+    $("lista").innerHTML = `<p class="rot">Verifique a conexão com a API e tente novamente.</p>`;
+    return;
+  }
   const itens = alertas
     .map((a, i) => ({ ...a, i, lida: sessionStorage.getItem(chaveLida(a.id)) === "1" }))
     .filter((a) => filtro === "todos" || a.tipo === filtro);
@@ -13,9 +19,9 @@ function desenhar() {
   $("resumo").textContent = naoLidas ? `${naoLidas} alertas não lidos.` : "Tudo em dia, nenhum alerta pendente.";
   $("lista").innerHTML = itens.map((a) => `
     <div class="alerta ${a.lida ? "lida" : ""}">
-      <span class="dot ${a.tipo}"></span>
-      <div class="grow"><strong>${a.titulo}</strong><small>${a.desc} · ${new Date(a.quando).toLocaleString("pt-BR")}</small></div>
-      <span class="tag ${a.tipo === "info" ? "inf" : a.tipo}">${nomes[a.tipo]}</span>
+      <span class="dot ${escapeHTML(a.tipo)}"></span>
+      <div class="grow"><strong>${escapeHTML(a.titulo)}</strong><small>${escapeHTML(a.desc)} · ${escapeHTML(a.quando)}</small></div>
+      <span class="tag ${a.tipo === "info" ? "inf" : escapeHTML(a.tipo)}">${nomes[a.tipo] || escapeHTML(a.tipo)}</span>
       ${a.lida ? "" : `<button class="mini-btn" data-i="${a.i}">Marcar como lido</button>`}
     </div>`).join("") || `<p class="rot">Nenhum alerta nessa categoria.</p>`;
 
@@ -33,8 +39,8 @@ async function carregar() {
     alertas = await apiFetch("/alertas");
     desenhar();
   } catch (e) {
-    $("resumo").textContent = "Não foi possível carregar os alertas.";
-    $("lista").innerHTML = `<p class="rot">Verifique se a API está disponível.</p>`;
+    erroCarregamento = true;
+    desenhar();
   }
 }
 
