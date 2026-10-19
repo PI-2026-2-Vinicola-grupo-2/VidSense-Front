@@ -17,30 +17,30 @@
       <header class="topo">
         <div>
           <h1>Configurações</h1>
-          <p class="sub">Ajuste seu perfil, limites de alerta e notificações.</p>
+          <p class="sub">Visualização local; a API ainda não possui persistência de configurações.</p>
         </div>
         <button class="pill" id="salvar">Salvar alterações</button>
       </header>
 
              <article class="card">
           <h2>Perfil</h2>
-          <div class="campo"><label for="nome">Nome</label><input id="nome"></div>
-          <div class="campo"><label for="email">E-mail</label><input id="email" type="email"></div>
+          <div class="campo"><label for="nome">Nome</label><input id="nome" placeholder="Disponível na sessão" readonly></div>
+          <div class="campo"><label for="email">E-mail</label><input id="email" type="email" placeholder="Disponível na sessão" readonly></div>
           <div class="campo">
             <label for="perfil">Perfil de acesso</label>
             <select id="perfil" disabled>
-              <option value="produtor_exportador">Produtor / exportador</option>
-              <option value="analista_dados">Analista de dados</option>
-              <option value="administrador">Administrador</option>
+              <option selected>Definido pela API</option>
+              <option>Analista de dados</option>
+              <option>Administrador</option>
             </select>
           </div>
         </article>
 
         <article class="card">
           <h2>Limites de alerta</h2>
-          <div class="campo"><label for="tmax">Temperatura máxima (°C)</label><input id="tmax" type="number" value="32"></div>
-          <div class="campo"><label for="umax">Umidade máxima (%)</label><input id="umax" type="number" value="75"></div>
-          <div class="campo"><label for="umin">Umidade mínima (%)</label><input id="umin" type="number" value="40"></div>
+          <div class="campo"><label for="tmax">Temperatura máxima (°C)</label><input id="tmax" type="text" placeholder="Definido no backend" readonly></div>
+          <div class="campo"><label for="umax">Umidade máxima (%)</label><input id="umax" type="text" placeholder="Definido no backend" readonly></div>
+          <div class="campo"><label for="umin">Umidade mínima (%)</label><input id="umin" type="text" placeholder="Definido no backend" readonly></div>
         </article>
       </section>
 
@@ -56,14 +56,14 @@
           <h2>Fonte de dados</h2>
           <div class="linha"><span>Sensor</span><strong>ESP32 + DHT</strong></div>
           <div class="linha"><span>Canal ThingSpeak</span><strong>3500405</strong></div>
-          <div class="linha"><span>Intervalo de atualização</span><strong>16 segundos</strong></div>
-          <div class="linha"><span>Status</span><span class="tag ok">Conectado</span></div>
+          <div class="linha"><span>Intervalo de atualização</span><strong>Definido pelo dispositivo</strong></div>
+          <div class="linha"><span>Status</span><span class="tag inf">Consultado pela API</span></div>
         </article>
       </section>
     </main>
   </div>
 
-  <div class="toast" id="toast" role="status">Alterações salvas (demonstração)</div>
+  <div class="toast" id="toast" role="status">Configurações ainda não possuem persistência na API.</div>
 
   <script src="js/api.js"></script>
   <script src="js/layout.js"></script>

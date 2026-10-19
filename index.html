@@ -18,17 +18,19 @@
       <header class="topo">
         <div>
           <p class="data" id="data"></p>
-         <h1 id="saudacao">Olá </h1>
+          <h1 id="saudacao">Olá</h1>
           <p class="sub">Veja como está o clima no seu vinhedo agora.</p>
         </div>
-        <button class="pill">Exportar relatório</button>
+        <span class="tag inf">Dados via API</span>
       </header>
+
+      <div id="ultima-leitura" class="ultima-leitura"></div>
 
       <section class="kpis">
         <article class="card kpi">
           <p class="rot">Temperatura</p>
           <p class="val" id="k-temp">--</p>
-          <p class="tag ok">▲ 1,2° na última hora</p>
+          <p class="tag inf">Dados da API</p>
         </article>
         <article class="card kpi">
           <p class="rot">Umidade do ar</p>
@@ -36,14 +38,19 @@
           <div class="barra"><i id="k-barra"></i></div>
         </article>
         <article class="card kpi">
+          <p class="rot">Umidade do solo</p>
+          <p class="val" id="k-solo">--</p>
+          <p class="rot" id="k-solo-legenda" style="font-size:0.75rem; margin-top:0.3rem;"></p>
+        </article>
+        <article class="card kpi">
           <p class="rot">Janela de colheita</p>
-          <p class="val sm">12 a 18 mar</p>
-          <p class="tag ok">Condições ideais</p>
+          <p class="val sm" id="k-janela">--</p>
+          <p class="tag inf" id="k-janela-status">Carregando</p>
         </article>
         <article class="card kpi">
           <p class="rot">Alertas ativos</p>
-          <p class="val">2</p>
-          <p class="tag warn">1 requer atenção</p>
+          <p class="val" id="k-alertas">--</p>
+          <p class="tag inf" id="k-alertas-status">Carregando</p>
         </article>
       </section>
 
@@ -61,11 +68,7 @@
 
         <article class="card">
           <h2>Alertas recentes</h2>
-          <ul class="alertas">
-            <li><span class="dot warn"></span><div><strong>Umidade acima de 80%</strong><small>Risco de fungos · há 2 h</small></div></li>
-            <li><span class="dot ok"></span><div><strong>Temperatura estável</strong><small>Dentro da faixa ideal · há 5 h</small></div></li>
-            <li><span class="dot info"></span><div><strong>Previsão atualizada</strong><small>Colheita sugerida para 12/03 · ontem</small></div></li>
-          </ul>
+          <ul class="alertas" id="alertas-recentes"><li><span class="rot">Carregando alertas...</span></li></ul>
         </article>
       </section>
 

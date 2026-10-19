@@ -63,8 +63,12 @@ nav a.on { background: var(--ink); color: #fff; }
 .pill { background: var(--ink); color: #fff; padding: 0.7rem 1.3rem; border-radius: 999px; font-weight: 600; transition: transform 0.15s; }
 .pill:hover { transform: translateY(-1px); }
 
+/* ===== Última leitura (F2) ===== */
+.ultima-leitura { margin: -0.5rem 0 0.25rem; font-size: 0.88rem; }
+.aviso-stale { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.9rem; background: #ffedd5; color: #9a3412; border-radius: 999px; font-weight: 500; border: 1px solid rgba(234, 88, 12, 0.2); }
+
 /* ===== Indicadores ===== */
-.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; }
 .rot { color: var(--mut); font-size: 0.85rem; font-weight: 500; }
 .val { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.04em; margin: 0.3rem 0; }
 .val.sm { font-size: 1.55rem; padding: 0.65rem 0; }
@@ -134,6 +138,22 @@ input.sw:checked::after { left: 21px; }
 .prog .barra { margin: 0 0 0.6rem; }
 .prog .linha { border: 0; padding: 0.4rem 0 0.2rem; }
 
+/* Selo de previsão simulada (F5) */
+.selo-simulado {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+.selo-simulado .aviso-texto {
+  color: #fff;
+  opacity: 0.95;
+  font-size: 0.85rem;
+}
+
 /* ===== Central de alertas ===== */
 .lista { display: grid; gap: 0.75rem; }
 .alerta { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 16px; background: rgba(255, 255, 255, 0.65); border: 1px solid var(--line); transition: opacity 0.2s; }
@@ -178,6 +198,8 @@ input.sw:checked::after { left: 21px; }
 .pill.grande { width: 100%; padding: 0.85rem; font-size: 1rem; }
 .rodape-login { margin-top: 1.5rem; text-align: center; color: var(--mut); font-size: 0.9rem; }
 .demo { margin-top: 0.6rem; text-align: center; font-size: 0.78rem; color: var(--mut); opacity: 0.8; }
+.erro { color: #dc2626; font-size: 0.85rem; margin: 0.5rem 0; font-weight: 500; }
+.sucesso { color: #166534; font-size: 0.85rem; margin: 0.5rem 0; font-weight: 500; }
 
 /* ===== Responsivo ===== */
 @media (max-width: 1000px) {

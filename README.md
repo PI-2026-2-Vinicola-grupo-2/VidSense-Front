@@ -1,99 +1,67 @@
 # Vinícola — Frontend
 
-Interface web do **Projeto Integrador — Inteligência de Dados no Vale do São Francisco**.
-
-O frontend apresenta o dashboard climático e as funcionalidades de acompanhamento das condições do vinhedo, consumindo a API REST do backend hospedado em produção no Render.
+Interface web do Projeto Integrador — Inteligência de Dados no Vale do São Francisco. O dashboard acompanha temperatura, umidade do ar e do solo, histórico de leituras, alertas e a janela estimada de colheita.
 
 ## Visão geral
 
-O frontend foi desenvolvido sem framework, utilizando HTML, CSS e JavaScript puro. A aplicação se comunica com o backend por HTTP/HTTPS e utiliza autenticação baseada em JWT.
-
-### Arquitetura
+O frontend é uma aplicação estática em HTML, CSS e JavaScript puro. Ele se comunica por HTTPS com a API FastAPI hospedada no Render e usa JWT para autenticação.
 
 ```text
-Usuário
-   │
-   ▼
-Navegador
-   │
-   ▼
-Frontend — HTML/CSS/JavaScript
-   │
-   │ HTTPS + JWT
-   ▼
-Backend FastAPI — Render
-   │
-   ▼
-Supabase PostgreSQL
-   │
-   └──────────────► ThingSpeak / dados climáticos
+Usuário → Navegador → Frontend HTML/CSS/JavaScript
+                         │ HTTPS + JWT
+                         ▼
+                Backend FastAPI → Supabase PostgreSQL
+                                      │
+                                      └→ ThingSpeak / dados climáticos
 ```
 
 ## Stack
 
-- **HTML5** — estrutura das páginas
-- **CSS3** — estilos e layout responsivo
-- **JavaScript** — lógica da aplicação e integração com a API
-- **Chart.js** — gráficos
-- **Google Fonts / Inter** — tipografia
-- **FastAPI** — backend consumido pela aplicação
-- **JWT** — autenticação
+- HTML5, CSS3 e JavaScript puro, sem framework ou etapa de build/npm
+- Chart.js via CDN para gráficos
+- Google Fonts / Inter
+- Layout responsivo com CSS Grid e Flexbox
+- Backend FastAPI consumido pela aplicação
+- JWT para autenticação
 
 ## Funcionalidades
 
 | Tela | Arquivo | Descrição |
 |---|---|---|
-| Login | `login.html` | Autenticação do usuário através da API |
-| Dashboard | `index.html` | Visualização de temperatura, umidade, alertas e indicadores |
-| Histórico | `historico.html` | Consulta e visualização do histórico climático |
-| Previsão de colheita | `previsao.html` | Visualização da previsão/janela de colheita |
-| Alertas | `alertas.html` | Visualização e gerenciamento dos alertas da interface |
-| Configurações | `configuracoes.html` | Configurações e preferências apresentadas pela interface |
+| Login e cadastro | `login.html` | Autenticação e criação de conta pela API |
+| Dashboard | `index.html` | Leituras atuais, histórico, alertas, umidade do solo e indicadores |
+| Histórico | `historico.html` | Leituras dos últimos 7 ou 30 dias com filtros |
+| Previsão de colheita | `previsao.html` | Janela estimada, condições diárias e indicação de estimativa simulada |
+| Alertas | `alertas.html` | Alertas reais da API, filtros e marcação local como lidos |
+| Configurações | `configuracoes.html` | Visualização local do perfil e preferências da interface |
+
+O dashboard também informa quando a última leitura está desatualizada. A umidade do solo só é exibida quando há dados do sensor. Valores recebidos pela API que são inseridos no HTML são sanitizados por `escapeHTML`.
 
 ## Integração com a API
 
-A URL de produção utilizada atualmente pelo frontend é:
+A URL de produção é:
 
 ```text
 https://vinicola-back.onrender.com
 ```
 
-A configuração encontra-se em:
+A configuração do cliente HTTP está em `js/api.js`. O helper `apiFetch()` adiciona o token JWT, trata sessão expirada, timeout de 70 segundos e o aviso de cold start do servidor.
 
-```text
-js/api.js
-```
+| Endpoint | Método | Finalidade |
+|---|---|---|
+| `/health` | GET | Verificar disponibilidade |
+| `/auth/login` | POST | Autenticar usuário |
+| `/auth/register` | POST | Cadastrar usuário |
+| `/clima/atual` | GET | Consultar a última leitura |
+| `/clima/historico` | GET | Consultar histórico por horas |
+| `/alertas` | GET | Consultar alertas |
+| `/previsao/janela-colheita` | GET | Consultar previsão de colheita |
 
-O helper `apiFetch()` centraliza as requisições e adiciona automaticamente o token JWT quando existe uma sessão válida.
+O histórico usa `horas=24`, `horas=168` ou `horas=720`, conforme a tela. A previsão é uma estimativa baseada no histórico do ThingSpeak; quando o backend indicar `simulado`, a interface mantém essa informação visível e não inventa uma confiança ausente.
 
-### Principais endpoints utilizados/disponíveis
+As permissões das rotas são controladas pelo backend. O frontend envia o JWT recebido no login e redireciona para a tela de login quando recebe `401 Unauthorized`.
 
-| Endpoint | Método | Acesso | Finalidade |
-|---|---|---|---|
-| `/health` | GET | Público | Verificar disponibilidade da API |
-| `/auth/login` | POST | Público | Autenticar usuário |
-| `/auth/register` | POST | Público | Cadastrar usuário |
-| `/clima/atual` | GET | Público | Consultar última leitura climática |
-| `/clima/historico` | GET | Autenticado | Consultar histórico climático |
-
-> As permissões das rotas são controladas pelo backend. O frontend apenas envia o token JWT recebido durante o login.
-
-## Autenticação
-
-O fluxo de autenticação funciona da seguinte forma:
-
-1. O usuário informa e-mail e senha na tela de login.
-2. O frontend envia as credenciais para `/auth/login`.
-3. O backend valida o usuário.
-4. O backend retorna um JWT e informações básicas do usuário.
-5. O frontend mantém a sessão no `sessionStorage`.
-6. As requisições autenticadas recebem o header:
-
-```http
-Authorization: Bearer <token>
-```
-
-Se a API retornar `401 Unauthorized`, a sessão é removida e o usuário é direcionado novamente para a tela de login.
+As configurações de perfil, limites e notificações são apenas visuais: a API atual não possui endpoint de persistência para elas.
 
 ## Estrutura do projeto
 
@@ -105,94 +73,47 @@ Vinicola-Front/
 ├── previsao.html
 ├── alertas.html
 ├── configuracoes.html
-├── css/
-│   └── style.css
+├── css/style.css
 ├── imagens/
 │   ├── logo-completo.svg
 │   └── logo-icone.svg
-├── js/
-│   ├── api.js
-│   ├── app.js
-│   ├── alertas.js
-│   ├── configuracoes.js
-│   ├── historico.js
-│   ├── layout.js
-│   ├── login.js
-│   └── previsao.js
-└── README.md
+└── js/
+    ├── api.js
+    ├── app.js
+    ├── alertas.js
+    ├── configuracoes.js
+    ├── historico.js
+    ├── layout.js
+    ├── login.js
+    └── previsao.js
 ```
 
 ## Como executar localmente
 
-O projeto não possui etapa de build nem dependências Node.js.
-
-### Opção 1 — VS Code + Live Server
-
-1. Abra o projeto no VS Code.
-2. Instale a extensão **Live Server**.
-3. Abra `index.html` ou `login.html` com **Open with Live Server**.
-4. Acesse a URL disponibilizada pelo Live Server.
-
-Exemplo:
+Não é necessária instalação de dependências npm. Abra a pasta no VS Code e use uma extensão de servidor estático, como Live Server:
 
 ```text
 http://127.0.0.1:5500
 ```
 
-### Opção 2 — servidor HTTP local
-
-Também é possível utilizar qualquer servidor HTTP estático.
-
-## Configuração de CORS
-
-Como o frontend realiza requisições para a API, a origem utilizada localmente precisa estar permitida no backend através da variável `CORS_ORIGINS`.
-
-Exemplo:
+Também é possível usar qualquer servidor HTTP estático. A origem local precisa estar autorizada no backend pela variável `CORS_ORIGINS`, por exemplo:
 
 ```text
 http://localhost:5500,http://127.0.0.1:5500
 ```
 
-Em produção, a origem do domínio onde o frontend estiver hospedado deverá ser adicionada à configuração de CORS da API.
+## Status
 
-## Status atual
-
-- [x] Interface principal
-- [x] Dashboard
-- [x] Histórico
-- [x] Previsão de colheita
-- [x] Alertas
-- [x] Configurações
-- [x] Tela de login
+- [x] Interface principal, dashboard, histórico, previsão, alertas e configurações
 - [x] Integração com a API FastAPI
-- [x] Autenticação JWT no frontend
-- [x] Tratamento de sessão expirada
+- [x] Autenticação JWT e tratamento de sessão expirada
 - [ ] Deploy próprio do frontend
-- [ ] Evolução das funcionalidades de previsão e alertas integradas ao backend
+- [ ] Evolução das funcionalidades de previsão e alertas
 
-## Segurança
+## Segurança e projetos relacionados
 
-O frontend não deve armazenar secrets da infraestrutura, chaves do ThingSpeak, senha do banco ou `JWT_SECRET_KEY`.
+O frontend não deve armazenar chaves do ThingSpeak, senha do banco, `JWT_SECRET_KEY` ou outros secrets de infraestrutura. O token de autenticação é mantido somente na sessão do navegador.
 
-O token de autenticação recebido do backend é mantido na sessão do navegador para permitir as requisições autenticadas.
-
-## Repositórios relacionados
-
-- **Backend:** `Vinicola-Back` — API FastAPI, autenticação, RBAC e acesso ao banco.
-- **IoT:** `Vinicola-IoT` — ESP32 + DHT11 e envio das leituras ao ThingSpeak.
-- **Banco:** Supabase PostgreSQL — banco utilizado pelo backend em produção.
-
-## Integração com o Vinicola-Back
-
-A interface consome a API FastAPI em `https://vinicola-back.onrender.com`.
-
-Rotas usadas pelo Front:
-- `POST /auth/login`
-- `GET /clima/atual`
-- `GET /clima/historico`
-- `GET /alertas`
-- `GET /previsao/janela-colheita`
-
-As páginas de Alertas e Previsão não usam mais dados fictícios: elas consultam a API. A previsão atual é uma **estimativa baseada no histórico do ThingSpeak**, não o modelo de Machine Learning final do PI.
-
-Se o Front for hospedado em outro domínio, esse domínio precisa ser adicionado à variável `CORS_ORIGINS` do Render.
+- **Backend:** `Vinicola-Back` — API FastAPI, autenticação, RBAC e banco
+- **IoT:** `Vinicola-IoT` — ESP32 + DHT11 e envio ao ThingSpeak
+- **Banco:** Supabase PostgreSQL
