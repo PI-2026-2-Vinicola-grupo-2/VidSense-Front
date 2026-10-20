@@ -8,56 +8,137 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* O campo Nome só aparece durante o cadastro */
+    #campo-nome {
+      display: none;
+    }
+
+    #campo-nome.mostrar {
+      display: grid;
+    }
+  </style>
 </head>
+
 <body>
   <div class="login">
 
     <!-- Painel de apresentação -->
     <section class="login-brand">
       <div class="logo">
-        <img src="imagens/logo-icone.svg" alt="" width="40" height="40">Vinícola
+        <img src="imagens/logo-icone.svg" alt="" width="40" height="40">
+        Vinícola
       </div>
+
       <div>
         <h1>O clima do seu vinhedo, em tempo real.</h1>
-        <p>Acompanhe temperatura e umidade, receba alertas e descubra a melhor janela de colheita.</p>
+        <p>
+          Acompanhe temperatura e umidade, receba alertas e descubra a melhor janela de colheita.
+        </p>
       </div>
+
       <div class="brand-stats">
-        <div><strong>API</strong><span>dados em tempo real</span></div>
-        <div><strong>JWT</strong><span>sessão protegida</span></div>
-        <div><strong>RBAC</strong><span>perfis de acesso</span></div>
+        <div>
+          <strong>API</strong>
+          <span>dados em tempo real</span>
+        </div>
+
+        <div>
+          <strong>JWT</strong>
+          <span>sessão protegida</span>
+        </div>
+
+        <div>
+          <strong>RBAC</strong>
+          <span>perfis de acesso</span>
+        </div>
       </div>
     </section>
 
     <!-- Formulário -->
     <section class="login-form">
       <div class="card login-card">
-        <h2 class="login-titulo">Bem-vinda de volta</h2>
-        <p class="sub">Entre com suas credenciais. O perfil é definido pela API.</p>
+
+        <h2 class="login-titulo" id="titulo-form">
+          Bem-vindo de volta
+        </h2>
+
+        <p class="sub" id="subtitulo-form">
+          Entre com suas credenciais. O perfil é definido pela API.
+        </p>
 
         <form id="form">
-          <div class="campo" id="campo-nome" hidden>
+
+          <!-- Só aparece no cadastro -->
+          <div class="campo" id="campo-nome">
             <label for="nome">Nome</label>
-            <input id="nome" type="text" minlength="1" maxlength="100" autocomplete="name">
+            <input
+              id="nome"
+              type="text"
+              minlength="1"
+              maxlength="100"
+              autocomplete="name"
+            >
           </div>
+
+          <!-- Login e cadastro -->
           <div class="campo">
             <label for="email">E-mail</label>
-            <input id="email" type="email" placeholder="voce@vinicola.com" autocomplete="email">
+            <input
+              id="email"
+              type="email"
+              placeholder="voce@vinicola.com"
+              autocomplete="email"
+              required
+            >
           </div>
+
           <div class="campo">
             <label for="senha">Senha</label>
-            <input id="senha" type="password" placeholder="••••••••" autocomplete="current-password">
+            <input
+              id="senha"
+              type="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            >
           </div>
+
           <div class="linha-opcoes">
             <a href="#" class="link">Esqueci a senha</a>
           </div>
+
           <p id="erro" class="erro" role="alert"></p>
-          <button type="submit" class="pill grande" id="submit-form">Entrar</button>
+
+          <button
+            type="submit"
+            class="pill grande"
+            id="submit-form"
+          >
+            Entrar
+          </button>
+
         </form>
 
-        <p class="rodape-login">Ainda não tem conta? <button type="button" class="link" id="alternar-cadastro">Criar conta</button></p>
-        <p class="demo">O acesso é validado pela API Vinícola.</p>
+        <p class="rodape-login" id="rodape-login">
+          Ainda não tem conta?
+          <button
+            type="button"
+            class="link"
+            id="alternar-cadastro"
+          >
+            Criar conta
+          </button>
+        </p>
+
+        <p class="demo">
+          O acesso é validado pela API Vinícola.
+        </p>
+
       </div>
     </section>
+
   </div>
 
   <script src="js/api.js"></script>
