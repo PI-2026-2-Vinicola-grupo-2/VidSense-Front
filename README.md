@@ -1,4 +1,4 @@
-# Vinícola — Frontend
+# Vidsense — Frontend
 
 Interface web do Projeto Integrador — Inteligência de Dados no Vale do São Francisco. O dashboard acompanha temperatura, umidade do ar e do solo, histórico de leituras, alertas e a janela estimada de colheita.
 
@@ -75,8 +75,8 @@ Vinicola-Front/
 ├── configuracoes.html
 ├── css/style.css
 ├── imagens/
-│   ├── logo-completo.svg
-│   └── logo-icone.svg
+│   ├── logo-completo.png
+│   └── logo-icone.png
 └── js/
     ├── api.js
     ├── app.js

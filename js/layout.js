@@ -9,25 +9,28 @@
   const atual = location.pathname.split("/").pop() || "index.html";
 
   const sessao = getSessao();
-  if (!sessao || typeof sessao !== "object" || !sessao.access_token) {
+  if (!sessao) {
     location.href = "login.html";
     return;
   }
 
-  const nome = typeof sessao.nome === "string" && sessao.nome.trim() ? sessao.nome : "Usuário";
-  const cargo = typeof sessao.cargo === "string" && sessao.cargo.trim() ? sessao.cargo : sessao.perfil || "Perfil";
+  // Produtor não tem acesso ao histórico na API, então o link não aparece
+  const visiveis = itens.filter(
+    ([href]) => !(href === "historico.html" && sessao.perfil === "produtor_exportador")
+  );
+
   document.getElementById("menu").innerHTML = `
     <div class="logo">
-      <img src="imagens/logo-icone.svg" alt="" width="34" height="34">Vinícola
+      <img src="imagens/logo-icone.png" alt="" width="34" height="34">VidSense
     </div>
     <nav>
-      ${itens.map(([href, nome]) =>
+      ${visiveis.map(([href, nome]) =>
         `<a href="${href}" ${href === atual ? 'class="on" aria-current="page"' : ""}>${nome}</a>`
       ).join("")}
     </nav>
     <div class="perfil">
-      <span class="avatar">${escapeHTML(nome[0])}</span>
-      <div class="grow"><strong>${escapeHTML(nome)}</strong><small>${escapeHTML(cargo)}</small></div>
+      <span class="avatar">${sessao.nome[0]}</span>
+      <div class="grow"><strong>${sessao.nome}</strong><small>${sessao.cargo}</small></div>
       <a href="#" class="sair" title="Sair" aria-label="Sair" id="sair">Sair</a>
     </div>`;
 
