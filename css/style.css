@@ -229,3 +229,9 @@ input.sw:checked::after { left: 21px; }
   .hero-val { font-size: 2rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ===== Mercado e logística ===== */
+.secao { display: flex; align-items: center; gap: 0.8rem; font-size: 1.15rem; margin-top: 0.4rem; }
+.secao::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.tag.bad { background: #fee2e2; color: #991b1b; }
+.kpi .rot + .tag, .kpi .val + .rot { margin-top: 0.1rem; }

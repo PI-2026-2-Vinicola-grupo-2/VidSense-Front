@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mercado e logística · VidSense</title>
+  <link rel="icon" href="imagens/logo-icone.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="side card" id="menu"></aside>
+
+    <main>
+      <header class="topo">
+        <div>
+          <h1>Mercado e logística</h1>
+          <p class="sub">Preços, demanda e acompanhamento dos embarques da safra.</p>
+        </div>
+        <span class="tag warn" id="selo-fonte" hidden>Dados de exemplo</span>
+      </header>
+
+      <!-- ===== Mercado ===== -->
+      <h2 class="secao">Mercado</h2>
+
+      <section class="kpis">
+        <article class="card kpi">
+          <p class="rot">Preço atual por kg</p>
+          <p class="val" id="m-preco">--</p>
+          <p class="tag ok" id="m-var">--</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Preço médio do período</p>
+          <p class="val" id="m-medio">--</p>
+          <p class="rot" id="m-faixa">--</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Demanda do mercado</p>
+          <p class="val" id="m-demanda">--</p>
+          <div class="barra"><i id="m-barra"></i></div>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Principal destino</p>
+          <p class="val sm" id="m-destino">--</p>
+          <p class="rot" id="m-destino-t">--</p>
+        </article>
+      </section>
+
+      <section class="duo">
+        <article class="card">
+          <div class="card-head">
+            <h2>Preço ao longo do tempo (R$/kg)</h2>
+            <div class="seg" id="periodo">
+              <button class="on" data-d="30">30 dias</button>
+              <button data-d="90">90 dias</button>
+            </div>
+          </div>
+          <div class="chart"><canvas id="g-preco"></canvas></div>
+        </article>
+        <article class="card">
+          <h2>Demanda por destino</h2>
+          <div class="chart"><canvas id="g-demanda"></canvas></div>
+        </article>
+      </section>
+
+      <!-- ===== Logística ===== -->
+      <h2 class="secao">Logística</h2>
+
+      <section class="kpis">
+        <article class="card kpi">
+          <p class="rot">Tempo médio de transporte</p>
+          <p class="val" id="l-tempo">--</p>
+          <p class="rot">da fazenda ao destino</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Frete médio por kg</p>
+          <p class="val" id="l-frete">--</p>
+          <p class="rot">custo por quilo transportado</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Carga em trânsito</p>
+          <p class="val" id="l-transito">--</p>
+          <p class="rot" id="l-embarques">--</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Entregas no prazo</p>
+          <p class="val" id="l-prazo">--</p>
+          <div class="barra"><i id="l-barra"></i></div>
+        </article>
+      </section>
+
+      <section class="duo">
+        <article class="card">
+          <h2>Embarques recentes</h2>
+          <div class="scroll">
+            <table>
+              <thead>
+                <tr><th>Destino</th><th>Modal</th><th>Carga</th><th>Chegada</th><th>Status</th></tr>
+              </thead>
+              <tbody id="l-linhas"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="card">
+          <h2>Frete por modal (R$/kg)</h2>
+          <div class="chart"><canvas id="g-frete"></canvas></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/mercado.js"></script>
+</body>
+</html>

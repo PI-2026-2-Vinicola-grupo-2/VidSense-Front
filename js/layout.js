@@ -3,6 +3,7 @@
     ["index.html", "Dashboard"],
     ["historico.html", "Histórico"],
     ["previsao.html", "Previsão de colheita"],
+    ["mercado.html", "Mercado e logística"],
     ["alertas.html", "Alertas"],
     ["configuracoes.html", "Configurações"],
   ];
