@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Vidsense · Dashboard</title>
-  <link rel="icon" href="imagens/logo-icone.png" type="image/png+xml">
+  <link rel="icon" href="imagens/logo-icone.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
@@ -21,7 +21,12 @@
           <h1 id="saudacao">Olá</h1>
           <p class="sub">Veja como está o clima no seu vinhedo agora.</p>
         </div>
-        <span class="tag inf">Dados via API</span>
+        <div class="topo-acoes">
+          <span class="rot" id="atualizado-em" aria-live="polite"></span>
+          <button type="button" class="pill pill-claro" id="btn-atualizar">
+            <span class="icone-atualizar" aria-hidden="true">↻</span> Atualizar
+          </button>
+        </div>
       </header>
 
       <div id="ultima-leitura" class="ultima-leitura"></div>

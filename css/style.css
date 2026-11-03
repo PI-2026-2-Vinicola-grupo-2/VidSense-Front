@@ -235,3 +235,12 @@ input.sw:checked::after { left: 21px; }
 .secao::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .tag.bad { background: #fee2e2; color: #991b1b; }
 .kpi .rot + .tag, .kpi .val + .rot { margin-top: 0.1rem; }
+
+/* ===== Atualização dos dados ===== */
+.topo-acoes { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+.pill-claro { background: #fff; color: var(--ink); border: 1px solid var(--line); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); }
+.pill:disabled { opacity: 0.6; cursor: default; transform: none; }
+.icone-atualizar { display: inline-block; }
+.girando .icone-atualizar { animation: girar 0.8s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .girando .icone-atualizar { animation: none; } }

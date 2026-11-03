@@ -1,6 +1,9 @@
 const $ = (id) => document.getElementById(id);
 let grafico;
 
+// Atualização automática: de quanto em quanto tempo buscar dados novos
+const INTERVALO_MS = 30000; // 30 segundos
+
 const sessao = getSessao();
 const podeHistorico = sessao?.perfil !== "produtor_exportador";
 
@@ -12,6 +15,10 @@ const normalizar = (l) => ({
   umidade: num(l.umidade),
   umidade_solo: num(l.umidade_solo),
 });
+let periodoAtual = 24; // período do gráfico (24 = 24 h, 7 = 7 dias)
+let atualizando = false;
+let timerAuto = null;
+let falhouAtual = false;
 const formatarHora = (iso) => new Date(iso).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
 // Saudação com o nome de quem está logado
@@ -45,7 +52,15 @@ function formatarTempoDecorrido(minutos) {
 }
 
 async function carregarAtual() {
-  const atual = normalizar(await apiFetch("/clima/atual"));
+  let dados;
+  try {
+    dados = await apiFetch("/clima/atual");
+  } catch (e) {
+    falhouAtual = true;
+    throw e;
+  }
+  falhouAtual = false;
+  const atual = normalizar(dados);
   $("k-temp").textContent = atual.temperatura != null ? `${atual.temperatura.toFixed(1)}°C` : "--";
   $("k-umi").textContent = atual.umidade != null ? `${Math.round(atual.umidade)}%` : "--";
   requestAnimationFrame(() => ($("k-barra").style.width = `${atual.umidade ?? 0}%`));
@@ -126,8 +141,6 @@ async function carregarPrevisaoResumo() {
 }
 
 function desenharGrafico(leituras) {
-  if (grafico) grafico.destroy();
-
   const datasets = [
     {
       label: "Temperatura (°C)",
@@ -162,6 +175,15 @@ function desenharGrafico(leituras) {
     });
   }
 
+  // Se o gráfico já existe com as mesmas séries, só troca os dados (sem piscar)
+  if (grafico && grafico.data.datasets.length === datasets.length) {
+    grafico.data.labels = leituras.map((l) => formatarHora(l.registrado_em));
+    datasets.forEach((d, i) => { grafico.data.datasets[i].data = d.data; });
+    grafico.update("none");
+    return;
+  }
+  if (grafico) grafico.destroy();
+
   grafico = new Chart($("grafico"), {
     type: "line",
     data: {
@@ -195,12 +217,65 @@ function desenharTabela(leituras) {
 }
 
 async function atualizarPeriodo(intervalo) {
+  periodoAtual = intervalo;
   // F4: 24h -> horas=24, 7 dias -> horas=168
   const horas = (intervalo === 7 || intervalo === 168) ? 168 : 24;
   const leituras = (await apiFetch(`/clima/historico?horas=${horas}`)).map(normalizar)
     .filter((l) => l.temperatura != null && l.umidade != null);
   desenharGrafico(leituras);
   desenharTabela(leituras);
+}
+
+const tabelaVazia = () => $("linhas").children.length === 0;
+
+// Busca tudo de novo (leitura atual, alertas, previsão e gráfico)
+async function atualizarTudo() {
+  if (atualizando) return; // evita dois pedidos ao mesmo tempo
+  atualizando = true;
+  const botao = $("btn-atualizar");
+  botao.disabled = true;
+  botao.classList.add("girando");
+
+  const tarefas = [
+    carregarAtual()
+      .then((atual) => { if (!podeHistorico && atual.temperatura != null) desenharTabela([atual]); })
+      .catch(() => {
+        if (!podeHistorico && tabelaVazia()) {
+          $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
+        }
+      }),
+    carregarAlertas(),
+    carregarPrevisaoResumo(),
+  ];
+  if (podeHistorico) {
+    tarefas.push(
+      atualizarPeriodo(periodoAtual).catch(() => {
+        if (tabelaVazia()) {
+          $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
+        }
+      })
+    );
+  }
+
+  await Promise.all(tarefas);
+
+  const hora = new Date().toLocaleTimeString("pt-BR");
+  $("atualizado-em").textContent = falhouAtual
+    ? `Falha ao atualizar às ${hora}. Tentando de novo em instantes.`
+    : `Atualizado às ${hora}`;
+
+  atualizando = false;
+  botao.disabled = false;
+  botao.classList.remove("girando");
+}
+
+function iniciarAuto() {
+  pararAuto();
+  timerAuto = setInterval(atualizarTudo, INTERVALO_MS);
+}
+function pararAuto() {
+  if (timerAuto) clearInterval(timerAuto);
+  timerAuto = null;
 }
 
 $("data").textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
@@ -213,9 +288,6 @@ if (podeHistorico) {
       atualizarPeriodo(Number(b.dataset.r)).catch(() => {});
     };
   });
-  atualizarPeriodo(24).catch(() => {
-    $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
-  });
 } else {
   // Produtor não tem acesso ao histórico na API: mostra só a leitura atual
   document.querySelector(".card-head .seg").hidden = true;
@@ -223,10 +295,21 @@ if (podeHistorico) {
     `<p class="rot">O gráfico de histórico está disponível para os perfis Analista de dados e Administrador.</p>`;
 }
 
-carregarAtual()
-  .then((atual) => { if (!podeHistorico && atual.temperatura != null) desenharTabela([atual]); })
-  .catch(() => {
-    if (!podeHistorico) $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
-  });
-carregarAlertas();
-carregarPrevisaoResumo();
+// Botão "Atualizar": busca agora e reinicia a contagem dos 30 s
+$("btn-atualizar").addEventListener("click", () => {
+  atualizarTudo();
+  iniciarAuto();
+});
+
+// Aba em segundo plano: pausa. Ao voltar, atualiza na hora e retoma.
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    pararAuto();
+  } else {
+    atualizarTudo();
+    iniciarAuto();
+  }
+});
+
+atualizarTudo();
+iniciarAuto();
