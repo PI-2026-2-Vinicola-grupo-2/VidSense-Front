@@ -19,6 +19,7 @@ let periodoAtual = 24; // período do gráfico (24 = 24 h, 7 = 7 dias)
 let atualizando = false;
 let timerAuto = null;
 let falhouAtual = false;
+let leituraDesatualizada = false; // usado pelos alertas para não mostrar "0" sem dado novo
 const formatarHora = (iso) => new Date(iso).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
 // Saudação com o nome de quem está logado
@@ -65,7 +66,7 @@ async function carregarAtual() {
   $("k-umi").textContent = atual.umidade != null ? `${Math.round(atual.umidade)}%` : "--";
   requestAnimationFrame(() => ($("k-barra").style.width = `${atual.umidade ?? 0}%`));
 
-  // Umidade do solo (F3)
+  // Umidade do solo
   const soloEl = $("k-solo");
   const legendaEl = $("k-solo-legenda");
   if (soloEl) {
@@ -78,17 +79,25 @@ async function carregarAtual() {
     }
   }
 
-  // Última leitura e dado velho (F2)
+  // Dado desatualizado: calcula uma vez e usa em todos os lugares
+  let defasagem = atual.defasagem_minutos;
+  if (defasagem == null && atual.registrado_em) {
+    defasagem = Math.floor((Date.now() - new Date(atual.registrado_em).getTime()) / 60000);
+  }
+  leituraDesatualizada = atual.desatualizado ?? (defasagem > 60);
+
+  // Selo da temperatura: indica quando o dado é antigo
+  const selo = $("k-temp-selo");
+  if (selo) {
+    selo.textContent = leituraDesatualizada ? "Dados antigos da API" : "Dados da API";
+    selo.className = `tag ${leituraDesatualizada ? "warn" : "inf"}`;
+  }
+
+  // Última leitura
   const elLeitura = $("ultima-leitura");
   if (elLeitura && atual.registrado_em) {
     const dataHora = formatarDataHora(atual.registrado_em);
-    let defasagem = atual.defasagem_minutos;
-    if (defasagem == null) {
-      defasagem = Math.floor((Date.now() - new Date(atual.registrado_em).getTime()) / 60000);
-    }
-    const isDesatualizado = atual.desatualizado ?? (defasagem > 60);
-
-    if (isDesatualizado) {
+    if (leituraDesatualizada) {
       elLeitura.innerHTML = `
         <div class="aviso-stale">
           <span class="dot warn"></span>
@@ -102,8 +111,18 @@ async function carregarAtual() {
   return atual;
 }
 
-async function carregarAlertas() {
+async function carregarAlertas(desatualizado) {
   const lista = $("alertas-recentes");
+
+  // Sem leitura recente não há o que avaliar: não mostra "0 alertas"
+  if (desatualizado) {
+    $("k-alertas").textContent = "--";
+    $("k-alertas-status").textContent = "Sem dados para avaliar";
+    $("k-alertas-status").className = "tag warn";
+    lista.innerHTML = `<li><span class="rot">Sem leitura recente para gerar alertas.</span></li>`;
+    return;
+  }
+
   try {
     const alertas = await apiFetch("/alertas");
     const avisos = Array.isArray(alertas) ? alertas : [];
@@ -162,7 +181,7 @@ function desenharGrafico(leituras) {
     },
   ];
 
-  // Inclui série de solo SOMENTE se houver algum valor não nulo (F3)
+  // Série de solo só aparece se houver algum valor
   const temSolo = leituras.some((l) => l.umidade_solo != null);
   if (temSolo) {
     datasets.push({
@@ -218,7 +237,6 @@ function desenharTabela(leituras) {
 
 async function atualizarPeriodo(intervalo) {
   periodoAtual = intervalo;
-  // F4: 24h -> horas=24, 7 dias -> horas=168
   const horas = (intervalo === 7 || intervalo === 168) ? 168 : 24;
   const leituras = (await apiFetch(`/clima/historico?horas=${horas}`)).map(normalizar)
     .filter((l) => l.temperatura != null && l.umidade != null);
@@ -236,15 +254,18 @@ async function atualizarTudo() {
   botao.disabled = true;
   botao.classList.add("girando");
 
+  // Alertas esperam a leitura atual, para saber se ela está desatualizada
+  const tarefaAtual = carregarAtual()
+    .then((atual) => { if (!podeHistorico && atual.temperatura != null) desenharTabela([atual]); })
+    .catch(() => {
+      if (!podeHistorico && tabelaVazia()) {
+        $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
+      }
+    });
+
   const tarefas = [
-    carregarAtual()
-      .then((atual) => { if (!podeHistorico && atual.temperatura != null) desenharTabela([atual]); })
-      .catch(() => {
-        if (!podeHistorico && tabelaVazia()) {
-          $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
-        }
-      }),
-    carregarAlertas(),
+    tarefaAtual,
+    tarefaAtual.then(() => carregarAlertas(leituraDesatualizada)),
     carregarPrevisaoResumo(),
   ];
   if (podeHistorico) {
