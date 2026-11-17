@@ -42,7 +42,7 @@ O dashboard também informa quando a última leitura está desatualizada. A umid
 A URL de produção é:
 
 ```text
-https://vinicola-back.onrender.com
+https://vidsense-back.onrender.com
 ```
 
 A configuração do cliente HTTP está em `js/api.js`. O helper `apiFetch()` adiciona o token JWT, trata sessão expirada, timeout de 70 segundos e o aviso de cold start do servidor.
