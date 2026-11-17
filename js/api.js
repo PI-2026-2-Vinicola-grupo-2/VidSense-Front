@@ -1,4 +1,4 @@
-const API_BASE = "https://vinicola-back.onrender.com";
+const API_BASE = "https://vidsense-back.onrender.com";
 
 function getSessao() {
   try {
