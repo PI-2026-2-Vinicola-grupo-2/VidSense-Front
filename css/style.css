@@ -244,3 +244,6 @@ input.sw:checked::after { left: 21px; }
 .girando .icone-atualizar { animation: girar 0.8s linear infinite; }
 @keyframes girar { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .girando .icone-atualizar { animation: none; } }
+/* Ajuste do bloco do perfil no menu */
+.perfil { gap: 0.6rem; }
+.perfil strong { overflow-wrap: anywhere; }
