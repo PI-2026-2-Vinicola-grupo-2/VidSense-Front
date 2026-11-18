@@ -5,6 +5,7 @@
     ["previsao.html", "Previsão de colheita"],
     ["mercado.html", "Mercado e logística"],
     ["alertas.html", "Alertas"],
+    ["relatorios.html", "Relatórios"],
     ["configuracoes.html", "Configurações"],
   ];
   const atual = location.pathname.split("/").pop() || "index.html";
@@ -15,10 +16,20 @@
     return;
   }
 
-  // Produtor não tem acesso ao histórico na API, então o link não aparece
-  const visiveis = itens.filter(
-    ([href]) => !(href === "historico.html" && sessao.perfil === "produtor_exportador")
-  );
+  // Regras de acesso por perfil
+  const restritas = {
+    "historico.html": ["analista_dados", "administrador"],
+    "relatorios.html": ["administrador"],
+  };
+  const podeVer = (href) => !restritas[href] || restritas[href].includes(sessao.perfil);
+
+  // Página restrita aberta por quem não tem permissão: volta ao dashboard
+  if (restritas[atual] && !podeVer(atual)) {
+    location.href = "index.html";
+    return;
+  }
+
+  const visiveis = itens.filter(([href]) => podeVer(href));
 
   document.getElementById("menu").innerHTML = `
     <div class="logo">

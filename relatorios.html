@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relatórios · VidSense</title>
+  <link rel="icon" href="imagens/logo-icone.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="side card" id="menu"></aside>
+
+    <main>
+      <header class="topo">
+        <div>
+          <h1>Relatórios</h1>
+          <p class="sub">Acessos, incidentes e execução dos testes do sistema.</p>
+        </div>
+        <span class="tag warn">Dados de exemplo</span>
+      </header>
+
+      <!-- ===== Segurança ===== -->
+      <h2 class="secao">Segurança</h2>
+
+      <section class="kpis">
+        <article class="card kpi">
+          <p class="rot">Eventos registrados</p>
+          <p class="val" id="s-eventos">--</p>
+          <p class="rot">últimas 24 horas</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Logins com falha</p>
+          <p class="val" id="s-falhas">--</p>
+          <p class="rot">senha ou e-mail inválido</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Acessos negados</p>
+          <p class="val" id="s-negados">--</p>
+          <p class="rot">respostas 403</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Incidentes abertos</p>
+          <p class="val" id="s-incidentes">--</p>
+          <p class="rot">exigem atenção</p>
+        </article>
+      </section>
+
+      <section class="card">
+        <h2>Eventos recentes</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Data e hora</th><th>Usuário</th><th>Evento</th><th>Resultado</th></tr></thead>
+            <tbody id="s-linhas"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== Qualidade ===== -->
+      <h2 class="secao">Qualidade</h2>
+
+      <section class="kpis">
+        <article class="card kpi">
+          <p class="rot">Casos planejados</p>
+          <p class="val" id="q-planejados">--</p>
+          <p class="rot">plano de testes</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Casos executados</p>
+          <p class="val" id="q-executados">--</p>
+          <p class="rot" id="q-executados-t">--</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Casos falhos</p>
+          <p class="val" id="q-falhos">--</p>
+          <p class="rot">com defeito registrado</p>
+        </article>
+        <article class="card kpi">
+          <p class="rot">Aprovação</p>
+          <p class="val" id="q-aprovacao">--</p>
+          <div class="barra"><i id="q-barra"></i></div>
+        </article>
+      </section>
+
+      <section class="card">
+        <h2>Execução por área</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Área</th><th>Casos</th><th>Aprovados</th><th>Falhos</th><th>Situação</th></tr></thead>
+            <tbody id="q-linhas"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/relatorios.js"></script>
+</body>
+</html>

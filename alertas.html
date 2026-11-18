@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Alertas · Vidsense</title>
-  <link rel="icon" href="imagens/logo-icone.png" type="image/png+xml">
+  <title>Alertas · VidSense</title>
+  <link rel="icon" href="imagens/logo-icone.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
@@ -30,10 +30,22 @@
       </div>
 
       <section class="card"><div class="lista" id="lista"></div></section>
+
+      <h2 class="secao">Histórico</h2>
+      <section class="card">
+        <p class="rot" id="hist-nota"></p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Visto em</th><th>Tipo</th><th>Alerta</th><th>Situação</th></tr></thead>
+            <tbody id="hist-linhas"></tbody>
+          </table>
+        </div>
+      </section>
     </main>
   </div>
 
   <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/alertas.js"></script>
 </body>

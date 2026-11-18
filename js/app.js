@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+const UI = window.UI;
 let grafico;
 
 // Atualização automática: de quanto em quanto tempo buscar dados novos
@@ -119,10 +120,11 @@ async function carregarAlertas(desatualizado) {
     $("k-alertas").textContent = "--";
     $("k-alertas-status").textContent = "Sem dados para avaliar";
     $("k-alertas-status").className = "tag warn";
-    lista.innerHTML = `<li><span class="rot">Sem leitura recente para gerar alertas.</span></li>`;
+    UI.vazio(lista, "Sem leitura recente para gerar alertas.");
     return;
   }
 
+  UI.carregando(lista, "Carregando alertas...");
   try {
     const alertas = await apiFetch("/alertas");
     const avisos = Array.isArray(alertas) ? alertas : [];
@@ -132,17 +134,22 @@ async function carregarAlertas(desatualizado) {
       ? `${atencoes} requer atenção`
       : "Nenhum alerta de atenção";
     $("k-alertas-status").className = `tag ${atencoes ? "warn" : "ok"}`;
+
+    if (!avisos.length) {
+      UI.vazio(lista, "Nenhum alerta retornado pela API.");
+      return;
+    }
     lista.innerHTML = avisos.slice(0, 3).map((alerta) => `
       <li>
         <span class="dot ${escapeHTML(alerta.tipo)}"></span>
         <div><strong>${escapeHTML(alerta.titulo)}</strong>
         <small>${escapeHTML(alerta.desc)} · ${escapeHTML(alerta.quando)}</small></div>
-      </li>`).join("") || `<li><span class="rot">Nenhum alerta retornado pela API.</span></li>`;
+      </li>`).join("");
   } catch (e) {
     $("k-alertas").textContent = "--";
     $("k-alertas-status").textContent = "Indisponível";
     $("k-alertas-status").className = "tag inf";
-    lista.innerHTML = `<li><span class="rot">Não foi possível carregar os alertas.</span></li>`;
+    UI.erro(lista, "Não foi possível carregar os alertas.", atualizarTudo);
   }
 }
 
@@ -224,6 +231,10 @@ function desenharGrafico(leituras) {
 
 function desenharTabela(leituras) {
   const ultimas = leituras.slice(-6).reverse();
+  if (!ultimas.length) {
+    UI.vazio($("linhas"), "Nenhuma leitura disponível ainda.");
+    return;
+  }
   $("linhas").innerHTML = ultimas.map((l) => {
     const alta = l.umidade > 75;
     return `<tr>
@@ -232,7 +243,7 @@ function desenharTabela(leituras) {
       <td>${l.umidade != null ? Math.round(l.umidade) + "%" : "--"}</td>
       <td><span class="tag ${alta ? "warn" : "ok"}">${alta ? "Atenção" : "Normal"}</span></td>
     </tr>`;
-  }).join("") || `<tr><td colspan="4">Nenhuma leitura disponível ainda.</td></tr>`;
+  }).join("");
 }
 
 async function atualizarPeriodo(intervalo) {
@@ -259,7 +270,7 @@ async function atualizarTudo() {
     .then((atual) => { if (!podeHistorico && atual.temperatura != null) desenharTabela([atual]); })
     .catch(() => {
       if (!podeHistorico && tabelaVazia()) {
-        $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
+        UI.erro($("linhas"), "Não foi possível carregar os dados.", atualizarTudo);
       }
     });
 
@@ -272,7 +283,7 @@ async function atualizarTudo() {
     tarefas.push(
       atualizarPeriodo(periodoAtual).catch(() => {
         if (tabelaVazia()) {
-          $("linhas").innerHTML = `<tr><td colspan="4">Não foi possível carregar os dados.</td></tr>`;
+          UI.erro($("linhas"), "Não foi possível carregar os dados.", atualizarTudo);
         }
       })
     );
