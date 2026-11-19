@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Histórico · Vidsense</title>
-  <link rel="icon" href="imagens/logo-icone.png" type="image/png+xml">
+  <title>Histórico · VidSense</title>
+  <link rel="icon" href="imagens/logo-icone.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
@@ -20,9 +20,12 @@
           <h1>Histórico</h1>
           <p class="sub">Acompanhe a evolução do clima e consulte as leituras.</p>
         </div>
-        <div class="seg">
-          <button class="on" data-r="7">7 dias</button>
-          <button data-r="30">30 dias</button>
+        <div class="topo-acoes">
+          <div id="origem"></div>
+          <div class="seg">
+            <button class="on" data-r="7">7 dias</button>
+            <button data-r="30">30 dias</button>
+          </div>
         </div>
       </header>
 
@@ -58,6 +61,7 @@
   </div>
 
   <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/historico.js"></script>
 </body>

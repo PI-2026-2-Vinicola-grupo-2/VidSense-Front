@@ -247,3 +247,12 @@ input.sw:checked::after { left: 21px; }
 /* Ajuste do bloco do perfil no menu */
 .perfil { gap: 0.6rem; }
 .perfil strong { overflow-wrap: anywhere; }
+/* ===== Estados padronizados (ui.js) ===== */
+.estado { color: var(--mut); font-size: 0.9rem; margin: 0.5rem 0; }
+.estado-erro { color: #dc2626; font-weight: 500; }
+.estado-acao { margin-left: 0.5rem; }
+/* Ajuste do menu: nome do perfil e botão Sair */
+.perfil { flex-wrap: wrap; }
+.perfil .grow { flex: 1; min-width: 0; }
+.perfil strong { overflow-wrap: normal; word-break: normal; }
+.perfil .sair { margin-left: auto; }

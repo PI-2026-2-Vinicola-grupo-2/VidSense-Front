@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+const UI = window.UI;
 
 /* =====================================================================
    FONTE DOS DADOS
@@ -6,25 +7,8 @@ const $ = (id) => document.getElementById(id);
    exemplo. Quando os endpoints estiverem prontos:
      1) ajuste os caminhos abaixo;
      2) troque USAR_DADOS_EXEMPLO para false.
-   Se a API falhar, a página volta sozinha para os dados de exemplo.
-
-   Formato esperado de cada resposta:
-   ENDPOINT_MERCADO  -> {
-     preco_atual: 11.8,            // R$/kg
-     variacao_pct: 2.4,            // variação frente ao dia anterior
-     demanda_indice: 78,           // 0 a 100
-     serie_precos: [{ data: "2026-10-01", preco: 11.5 }, ...],
-     demanda_por_destino: [{ destino: "Europa", toneladas: 420 }, ...]
-   }
-   ENDPOINT_LOGISTICA -> {
-     tempo_medio_dias: 14,
-     frete_medio_kg: 1.35,         // R$/kg
-     carga_transito_t: 96,         // toneladas
-     entregas_no_prazo_pct: 92,
-     frete_por_modal: [{ modal: "Marítimo", custo_kg: 0.9 }, ...],
-     embarques: [{ destino, modal, carga_t, previsao: "2026-11-05", status }]
-       // status: "Em trânsito" | "Entregue" | "Atrasado"
-   }
+   Se a API falhar, a página volta sozinha para os dados de exemplo e o
+   selo mostra "Dados de exemplo".
    ===================================================================== */
 const USAR_DADOS_EXEMPLO = true;
 const ENDPOINT_MERCADO = "/mercado/resumo";
@@ -80,6 +64,7 @@ function gerarExemplo() {
   };
 }
 
+// Devolve os dados e a origem ("api" ou "exemplo"), para o selo
 async function carregarDados() {
   if (!USAR_DADOS_EXEMPLO) {
     try {
@@ -87,12 +72,12 @@ async function carregarDados() {
         apiFetch(ENDPOINT_MERCADO),
         apiFetch(ENDPOINT_LOGISTICA),
       ]);
-      if (mercado && logistica) return { mercado, logistica, exemplo: false };
+      if (mercado && logistica) return { mercado, logistica, origem: "api" };
     } catch (e) {
       console.warn("API de mercado/logística indisponível, usando dados de exemplo:", e.message);
     }
   }
-  return { ...gerarExemplo(), exemplo: true };
+  return { ...gerarExemplo(), origem: "exemplo" };
 }
 
 // ---------- Formatação ----------
@@ -212,14 +197,18 @@ function desenharLogistica(l) {
   $("l-prazo").textContent = Number.isFinite(prazo) ? `${inteiro(prazo)}%` : "--";
   requestAnimationFrame(() => ($("l-barra").style.width = `${Number.isFinite(prazo) ? prazo : 0}%`));
 
-  $("l-linhas").innerHTML = embarques.map((e) => `
-    <tr>
-      <td>${escapeHTML(e.destino)}</td>
-      <td>${escapeHTML(e.modal)}</td>
-      <td>${inteiro(e.carga_t)} t</td>
-      <td>${dataCurta(e.previsao)}</td>
-      <td><span class="tag ${CLASSE_STATUS[e.status] || "inf"}">${escapeHTML(e.status)}</span></td>
-    </tr>`).join("") || `<tr><td colspan="5">Nenhum embarque registrado.</td></tr>`;
+  if (!embarques.length) {
+    UI.vazio($("l-linhas"), "Nenhum embarque registrado.");
+  } else {
+    $("l-linhas").innerHTML = embarques.map((e) => `
+      <tr>
+        <td>${UI.esc(e.destino)}</td>
+        <td>${UI.esc(e.modal)}</td>
+        <td>${inteiro(e.carga_t)} t</td>
+        <td>${dataCurta(e.previsao)}</td>
+        <td><span class="tag ${CLASSE_STATUS[e.status] || "inf"}">${UI.esc(e.status)}</span></td>
+      </tr>`).join("");
+  }
 
   const modais = l.frete_por_modal || [];
   criarGrafico("g-frete", {
@@ -238,8 +227,10 @@ function desenharLogistica(l) {
 }
 
 // ---------- Início ----------
-carregarDados().then(({ mercado, logistica, exemplo }) => {
-  $("selo-fonte").hidden = !exemplo;
+UI.carregando($("l-linhas"), "Carregando embarques...");
+
+carregarDados().then(({ mercado, logistica, origem }) => {
+  $("selo-fonte").innerHTML = UI.selo(origem);
   desenharMercado(mercado);
   desenharLogistica(logistica);
 });

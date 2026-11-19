@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+const UI = window.UI;
 
 // Dados de exemplo: o back ainda não expõe logs de acesso nem resultados de testes.
 // Quando essas rotas existirem, troque as constantes abaixo pelas respostas da API.
@@ -17,7 +18,10 @@ const areas = [
   { area: "Compatibilidade", casos: 3, aprovados: 0, falhos: 0 },
 ];
 
-// Segurança
+// Origem: tudo aqui é exemplo
+$("origem").innerHTML = UI.selo("exemplo");
+
+// ----- Segurança -----
 const negados = eventos.filter((e) => e.resultado.includes("403")).length;
 const falhas = eventos.filter((e) => e.resultado.startsWith("Falha")).length;
 const incidentes = eventos.filter((e) => e.status === "bad").length;
@@ -27,15 +31,19 @@ $("s-falhas").textContent = String(falhas);
 $("s-negados").textContent = String(negados);
 $("s-incidentes").textContent = String(incidentes);
 
-$("s-linhas").innerHTML = eventos.map((e) => `
-  <tr>
-    <td>${escapeHTML(e.quando)}</td>
-    <td>${escapeHTML(e.usuario)}</td>
-    <td>${escapeHTML(e.evento)}</td>
-    <td><span class="tag ${e.status}">${escapeHTML(e.resultado)}</span></td>
-  </tr>`).join("") || `<tr><td colspan="4">Nenhum evento registrado.</td></tr>`;
+if (!eventos.length) {
+  UI.vazio($("s-linhas"), "Nenhum evento registrado.");
+} else {
+  $("s-linhas").innerHTML = eventos.map((e) => `
+    <tr>
+      <td>${UI.esc(e.quando)}</td>
+      <td>${UI.esc(e.usuario)}</td>
+      <td>${UI.esc(e.evento)}</td>
+      <td><span class="tag ${UI.esc(e.status)}">${UI.esc(e.resultado)}</span></td>
+    </tr>`).join("");
+}
 
-// Qualidade
+// ----- Qualidade -----
 const planejados = areas.reduce((s, a) => s + a.casos, 0);
 const executados = areas.reduce((s, a) => s + a.aprovados + a.falhos, 0);
 const aprovados = areas.reduce((s, a) => s + a.aprovados, 0);
@@ -49,15 +57,19 @@ $("q-falhos").textContent = String(falhosTotal);
 $("q-aprovacao").textContent = aprovacao != null ? `${aprovacao}%` : "--";
 requestAnimationFrame(() => ($("q-barra").style.width = `${aprovacao ?? 0}%`));
 
-$("q-linhas").innerHTML = areas.map((a) => {
-  const situacao = a.aprovados + a.falhos === 0 ? "Pendente" : a.falhos ? "Com falhas" : "Aprovado";
-  const classe = situacao === "Pendente" ? "inf" : situacao === "Com falhas" ? "bad" : "ok";
-  return `
-    <tr>
-      <td>${escapeHTML(a.area)}</td>
-      <td>${a.casos}</td>
-      <td>${a.aprovados}</td>
-      <td>${a.falhos}</td>
-      <td><span class="tag ${classe}">${situacao}</span></td>
-    </tr>`;
-}).join("");
+if (!areas.length) {
+  UI.vazio($("q-linhas"), "Nenhuma área cadastrada.");
+} else {
+  $("q-linhas").innerHTML = areas.map((a) => {
+    const situacao = a.aprovados + a.falhos === 0 ? "Pendente" : a.falhos ? "Com falhas" : "Aprovado";
+    const classe = situacao === "Pendente" ? "inf" : situacao === "Com falhas" ? "bad" : "ok";
+    return `
+      <tr>
+        <td>${UI.esc(a.area)}</td>
+        <td>${a.casos}</td>
+        <td>${a.aprovados}</td>
+        <td>${a.falhos}</td>
+        <td><span class="tag ${classe}">${situacao}</span></td>
+      </tr>`;
+  }).join("");
+}

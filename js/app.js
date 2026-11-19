@@ -21,7 +21,14 @@ let atualizando = false;
 let timerAuto = null;
 let falhouAtual = false;
 let leituraDesatualizada = false; // usado pelos alertas para não mostrar "0" sem dado novo
+
+// Em 7 dias, o rótulo precisa mostrar a data; em 24 h, só a hora
+const mostraDia = () => periodoAtual === 7 || periodoAtual === 168;
 const formatarHora = (iso) => new Date(iso).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+const formatarRotulo = (iso) =>
+  mostraDia()
+    ? new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+    : formatarHora(iso);
 
 // Saudação com o nome de quem está logado
 (function () {
@@ -201,9 +208,11 @@ function desenharGrafico(leituras) {
     });
   }
 
+  const rotulos = leituras.map((l) => formatarRotulo(l.registrado_em));
+
   // Se o gráfico já existe com as mesmas séries, só troca os dados (sem piscar)
   if (grafico && grafico.data.datasets.length === datasets.length) {
-    grafico.data.labels = leituras.map((l) => formatarHora(l.registrado_em));
+    grafico.data.labels = rotulos;
     datasets.forEach((d, i) => { grafico.data.datasets[i].data = d.data; });
     grafico.update("none");
     return;
@@ -213,7 +222,7 @@ function desenharGrafico(leituras) {
   grafico = new Chart($("grafico"), {
     type: "line",
     data: {
-      labels: leituras.map((l) => formatarHora(l.registrado_em)),
+      labels: rotulos,
       datasets,
     },
     options: {
@@ -238,7 +247,7 @@ function desenharTabela(leituras) {
   $("linhas").innerHTML = ultimas.map((l) => {
     const alta = l.umidade > 75;
     return `<tr>
-      <td>${escapeHTML(formatarHora(l.registrado_em))}</td>
+      <td>${escapeHTML(formatarDataHora(l.registrado_em))}</td>
       <td>${l.temperatura != null ? l.temperatura.toFixed(1) + "°C" : "--"}</td>
       <td>${l.umidade != null ? Math.round(l.umidade) + "%" : "--"}</td>
       <td><span class="tag ${alta ? "warn" : "ok"}">${alta ? "Atenção" : "Normal"}</span></td>

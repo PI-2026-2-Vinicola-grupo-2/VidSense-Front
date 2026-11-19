@@ -1,6 +1,8 @@
 const $ = (id) => document.getElementById(id);
+const UI = window.UI;
 let grafico;
 let leiturasAtuais = [];
+let diasAtuais = 7;
 
 const formatarData = (iso, dias) =>
   new Date(iso).toLocaleString(
@@ -45,7 +47,7 @@ function desenharGrafico(dados, dias) {
     },
   ];
 
-  // Inclui série de solo SOMENTE se houver algum valor não nulo (F3)
+  // Série de solo só aparece se houver algum valor
   const temSolo = dados.some((d) => d.umidade_solo != null);
   if (temSolo) {
     datasets.push({
@@ -80,23 +82,29 @@ function desenharGrafico(dados, dias) {
 function tabela() {
   const f = $("filtro").value;
   const itens = [...leiturasAtuais].reverse().filter((d) => f === "todos" || status(d) === f).slice(0, 12);
-  $("linhas").innerHTML =
-    itens
-      .map((d) => {
-        const s = status(d);
-        return `<tr>
-      <td>${escapeHTML(formatarData(d.registrado_em, 7))}</td>
+
+  if (!itens.length) {
+    UI.vazio($("linhas"), leiturasAtuais.length ? "Nenhuma leitura nesse filtro." : "Nenhuma leitura no período.");
+    return;
+  }
+
+  $("linhas").innerHTML = itens.map((d) => {
+    const s = status(d);
+    return `<tr>
+      <td>${UI.esc(formatarData(d.registrado_em, 7))}</td>
       <td>${d.temperatura != null ? d.temperatura.toFixed(1) + "°C" : "--"}</td>
       <td>${d.umidade != null ? Math.round(d.umidade) + "%" : "--"}</td>
       <td><span class="tag ${s === "atencao" ? "warn" : "ok"}">${s === "atencao" ? "Atenção" : "Normal"}</span></td>
     </tr>`;
-      })
-      .join("") || `<tr><td colspan="4">Nenhuma leitura nesse filtro.</td></tr>`;
+  }).join("");
 }
 
 async function carregar(dias) {
-  // F4: horas reais
+  diasAtuais = dias;
+  // Horas reais: 7 dias = 168 h, 30 dias = 720 h
   const horas = dias === 30 ? 720 : dias === 7 ? 168 : dias * 24;
+
+  UI.carregando($("linhas"), "Carregando leituras...");
   try {
     const dados = await apiFetch(`/clima/historico?horas=${horas}`);
     leiturasAtuais = dados
@@ -107,28 +115,23 @@ async function carregar(dias) {
         umidade_solo: d.umidade_solo == null || d.umidade_solo === "" ? null : Number(d.umidade_solo),
       }))
       .filter((d) => d.temperatura != null && d.umidade != null && !isNaN(d.temperatura) && !isNaN(d.umidade));
+
+    $("origem").innerHTML = UI.selo("api");
     desenharResumo(leiturasAtuais);
     desenharGrafico(leiturasAtuais, dias);
     tabela();
   } catch (err) {
-    const msg =
-      err && err.message && (err.message.includes("403") || err.message.toLowerCase().includes("permissão"))
-        ? "Seu perfil não tem permissão para ver o histórico."
-        : "Não foi possível carregar os dados.";
-    $("linhas").innerHTML = `<tr><td colspan="4">${escapeHTML(msg)}</td></tr>`;
-  }
-}
-
-async function iniciar(dias) {
-  try {
-    await carregar(dias);
-  } catch (e) {
-    const semPermissao = /permiss|403/i.test(e.message || "");
-    $("linhas").innerHTML = `<tr><td colspan="4">${
-      semPermissao
-        ? "Seu perfil não tem permissão para ver o histórico. Entre com uma conta de Analista de dados ou Administrador."
-        : "Não foi possível carregar os dados. Tente novamente em instantes."
-    }</td></tr>`;
+    const semPermissao = /permiss|403/i.test(err?.message || "");
+    if (semPermissao) {
+      $("origem").innerHTML = UI.selo("indisp");
+      UI.erro(
+        $("linhas"),
+        "Seu perfil não tem permissão para ver o histórico. Entre com uma conta de Analista de dados ou Administrador."
+      );
+    } else {
+      $("origem").innerHTML = UI.selo("indisp");
+      UI.erro($("linhas"), "Não foi possível carregar os dados.", () => carregar(diasAtuais));
+    }
   }
 }
 
@@ -136,9 +139,9 @@ document.querySelectorAll(".seg button").forEach((b) => {
   b.onclick = () => {
     document.querySelectorAll(".seg button").forEach((x) => x.classList.remove("on"));
     b.classList.add("on");
-    iniciar(Number(b.dataset.r));
+    carregar(Number(b.dataset.r));
   };
 });
 $("filtro").onchange = tabela;
 
-iniciar(7);
+carregar(7);
