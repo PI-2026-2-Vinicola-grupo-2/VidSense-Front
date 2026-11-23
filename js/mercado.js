@@ -3,16 +3,12 @@ const UI = window.UI;
 
 /* =====================================================================
    FONTE DOS DADOS
-   Enquanto a API de mercado/logística não existe, a página usa dados de
-   exemplo. Quando os endpoints estiverem prontos:
-     1) ajuste os caminhos abaixo;
-     2) troque USAR_DADOS_EXEMPLO para false.
-   Se a API falhar, a página volta sozinha para os dados de exemplo e o
-   selo mostra "Dados de exemplo".
+   Mercado vem da API (/mercado/resumo), que hoje devolve dados simulados.
+   Logística continua com dados de exemplo até existir a API dela.
+   Se a API de mercado falhar, a página usa os dados de exemplo.
    ===================================================================== */
-const USAR_DADOS_EXEMPLO = true;
+const USAR_DADOS_EXEMPLO = false;
 const ENDPOINT_MERCADO = "/mercado/resumo";
-const ENDPOINT_LOGISTICA = "/logistica/resumo";
 
 // ---------- Dados de exemplo (valores fictícios, só para o layout) ----------
 function isoDia(deslocamento) {
@@ -64,20 +60,35 @@ function gerarExemplo() {
   };
 }
 
-// Devolve os dados e a origem ("api" ou "exemplo"), para o selo
+// Devolve mercado, logística e a origem de cada parte, para os selos
 async function carregarDados() {
+  const exemplo = gerarExemplo();
+  let mercado = null;
+  let origemMercado = "exemplo";
+
   if (!USAR_DADOS_EXEMPLO) {
     try {
-      const [mercado, logistica] = await Promise.all([
-        apiFetch(ENDPOINT_MERCADO),
-        apiFetch(ENDPOINT_LOGISTICA),
-      ]);
-      if (mercado && logistica) return { mercado, logistica, origem: "api" };
+      const resposta = await apiFetch(ENDPOINT_MERCADO);
+      if (resposta) {
+        mercado = resposta;
+        // Dados simulados no back são apresentados como exemplo, para não parecer medição real
+        origemMercado = resposta.origem === "simulado" ? "exemplo" : "api";
+      }
     } catch (e) {
-      console.warn("API de mercado/logística indisponível, usando dados de exemplo:", e.message);
+      console.warn("API de mercado indisponível, usando dados de exemplo:", e.message);
     }
   }
-  return { ...gerarExemplo(), origem: "exemplo" };
+
+  if (!mercado) {
+    mercado = exemplo.mercado;
+    origemMercado = "exemplo";
+  }
+
+  return {
+    mercado,
+    logistica: exemplo.logistica,
+    origem: { mercado: origemMercado, logistica: "exemplo" },
+  };
 }
 
 // ---------- Formatação ----------
@@ -230,7 +241,9 @@ function desenharLogistica(l) {
 UI.carregando($("l-linhas"), "Carregando embarques...");
 
 carregarDados().then(({ mercado, logistica, origem }) => {
-  $("selo-fonte").innerHTML = UI.selo(origem);
+  $("selo-fonte").innerHTML = `
+    <span class="rot">Mercado</span> ${UI.selo(origem.mercado)}
+    <span class="rot">Logística</span> ${UI.selo(origem.logistica)}`;
   desenharMercado(mercado);
   desenharLogistica(logistica);
 });
