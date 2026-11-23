@@ -6,6 +6,7 @@
     ["mercado.html", "Mercado e logística"],
     ["alertas.html", "Alertas"],
     ["relatorios.html", "Relatórios"],
+    ["usuarios.html", "Usuários"],
     ["configuracoes.html", "Configurações"],
   ];
   const nomesTela = Object.fromEntries(itens);
@@ -21,6 +22,7 @@
   const restritas = {
     "historico.html": ["analista_dados", "administrador"],
     "relatorios.html": ["administrador"],
+    "usuarios.html": ["administrador"],
   };
   const podeVer = (href) => !restritas[href] || restritas[href].includes(sessao.perfil);
 

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usuários · VidSense</title>
+  <link rel="icon" href="imagens/logo-icone.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="side card" id="menu"></aside>
+
+    <main>
+      <header class="topo">
+        <div>
+          <h1>Usuários</h1>
+          <p class="sub">Cadastre contas e altere o perfil de acesso. Apenas administradores têm acesso a esta tela.</p>
+        </div>
+        <div id="origem"></div>
+      </header>
+
+      <section class="card">
+        <h2>Novo usuário</h2>
+        <form id="form-novo" class="grid2" style="margin-top:0.8rem;">
+          <div class="campo">
+            <label for="n-nome">Nome</label>
+            <input id="n-nome" required maxlength="100" autocomplete="off">
+          </div>
+          <div class="campo">
+            <label for="n-email">E-mail</label>
+            <input id="n-email" type="email" required autocomplete="off">
+          </div>
+          <div class="campo">
+            <label for="n-senha">Senha (mínimo 8 caracteres)</label>
+            <input id="n-senha" type="password" minlength="8" maxlength="72" required autocomplete="new-password">
+          </div>
+          <div class="campo">
+            <label for="n-perfil">Perfil</label>
+            <select id="n-perfil">
+              <option value="produtor_exportador">Produtor / exportador</option>
+              <option value="analista_dados">Analista de dados</option>
+              <option value="administrador">Administrador</option>
+            </select>
+          </div>
+          <div style="grid-column: 1 / -1; display:flex; gap:1rem; align-items:center;">
+            <button type="submit" class="pill">Criar usuário</button>
+            <span id="n-msg" class="rot" role="status"></span>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Contas cadastradas</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ação</th></tr></thead>
+            <tbody id="linhas"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/usuarios.js"></script>
+</body>
+</html>
