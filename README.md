@@ -1,6 +1,6 @@
 # VidSense · Front-end
 
-Interface web do Projeto Integrador **VidSense**, um dashboard de monitoramento climático e logístico para o vinhedo no Vale do São Francisco. Consome a API REST do back-end (FastAPI) publicada no Render.
+Interface web do Projeto Integrador **VidSense**, um dashboard de monitoramento climático e logístico para o vinhedo, no Vale do São Francisco. Consome a API REST do back-end (FastAPI), publicada no Render.
 
 ## Stack
 
@@ -19,7 +19,8 @@ VidSense-Front/
 ├── mercado.html          # Mercado e logística
 ├── alertas.html          # Alertas e histórico de alertas
 ├── relatorios.html       # Relatórios de segurança e qualidade (administrador)
-├── configuracoes.html    # Perfil e configurações
+├── usuarios.html         # Cadastro e perfis de usuários (administrador)
+├── configuracoes.html    # Dados do usuário e status da fonte de dados
 ├── login.html            # Entrada no sistema
 ├── css/
 │   └── style.css         # Estilos de todas as telas
@@ -36,6 +37,7 @@ VidSense-Front/
     ├── mercado.js
     ├── alertas.js
     ├── relatorios.js
+    ├── usuarios.js
     ├── configuracoes.js
     └── login.js
 ```
@@ -63,7 +65,7 @@ O back-end libera a origem `http://127.0.0.1:5500` no CORS. Se o front for publi
 
 ## Perfis e acesso
 
-O menu é montado a partir do perfil da sessão (`js/layout.js`). Esse arquivo é a única fonte das regras de acesso na interface.
+O menu é montado a partir do perfil da sessão (`js/layout.js`), que é a única fonte das regras de acesso na interface.
 
 | Tela | Produtor | Analista | Administrador |
 |---|---|---|---|
@@ -73,6 +75,7 @@ O menu é montado a partir do perfil da sessão (`js/layout.js`). Esse arquivo �
 | Mercado e logística | Sim | Sim | Sim |
 | Alertas | Sim | Sim | Sim |
 | Relatórios | Não | Não | Sim |
+| Usuários | Não | Não | Sim |
 | Configurações | Sim | Sim | Sim |
 
 Quando um perfil abre uma tela restrita pela barra de endereço, o sistema volta ao dashboard e mostra um aviso explicando o motivo.
@@ -84,14 +87,18 @@ Quando um perfil abre uma tela restrita pela barra de endereço, o sistema volta
 | Endpoint | Acesso | Tela |
 |---|---|---|
 | `POST /auth/login` | Público | Login |
-| `POST /auth/register` | Público (perfil restrito a produtor) | Cadastro |
+| `POST /auth/register` | Público (somente perfil produtor) | Login (criar conta) |
 | `GET /clima/atual` | Público | Dashboard, Configurações |
 | `GET /clima/historico?horas=` | Analista e administrador | Dashboard, Histórico |
 | `GET /alertas` | Autenticado | Dashboard, Alertas |
 | `GET /alertas/historico?limite=` | Autenticado | Alertas |
 | `GET /previsao/janela-colheita` | Autenticado | Dashboard, Previsão |
+| `GET /mercado/resumo` | Autenticado | Mercado e logística |
+| `GET /admin/usuarios` | Administrador | Usuários |
+| `POST /admin/usuarios` | Administrador | Usuários (novo usuário) |
+| `PATCH /admin/usuarios/{id}/perfil` | Administrador | Usuários (alterar perfil) |
 
-Mercado e logística ainda não têm endpoints. A tela usa dados de exemplo, ativados por `USAR_DADOS_EXEMPLO` no início de `js/mercado.js`.
+A logística ainda não tem endpoint. A tela usa dados de exemplo, controlados por `USAR_DADOS_EXEMPLO` no início de `js/mercado.js`.
 
 ## Padrões visuais
 
@@ -108,15 +115,22 @@ Todas as telas seguem o mesmo padrão, definido em `js/ui.js`:
 
 ## Atualização dos dados
 
-- **Dashboard:** atualiza sozinho a cada 30 segundos, com o botão **Atualizar** para buscar na hora. A atualização pausa quando a aba fica em segundo plano.
-- **Alertas:** atualiza a cada 30 segundos, com o mesmo comportamento.
-- Se a última leitura tiver mais de 60 minutos, o dashboard mostra "Sem dados recentes" e os alertas mostram "Sem dados para avaliar", em vez de "0 alertas".
+- **Dashboard:** busca os dados a cada 30 segundos e tem o botão **Atualizar** para buscar na hora. A linha "Última leitura" recalcula a idade da leitura a cada 15 segundos, sem recarregar a página. Passados 60 minutos, o dashboard passa a mostrar o aviso "Sem dados recentes" e o selo "Dados antigos da API".
+- **Alertas:** busca a cada 30 segundos, com o mesmo comportamento de pausa em segundo plano.
+- **Demais telas:** carregam os dados ao abrir. Atualização automática e botão **Atualizar** ainda não foram implementados nelas.
+- A atualização pausa quando a aba fica em segundo plano e retoma ao voltar.
+
+## Controle de acesso e avisos
+
+- Ao abrir uma tela restrita sem permissão, o sistema volta ao dashboard e mostra o aviso "Seu perfil não tem acesso à tela…". O aviso aparece uma única vez.
+- A tela de Histórico também mostra mensagem de permissão, caso a API responda 403.
+- A tela de Usuários impede que o administrador altere o próprio perfil, tanto na interface quanto na API.
 
 ## Limitações conhecidas
 
 - **Sensor parado:** o ESP32 ainda não está montado. A última leitura do canal ThingSpeak é de 30/10, então o dashboard mostra o aviso de dados antigos.
-- **Umidade do solo:** o sensor não está instalado, e o card indica isso.
-- **Mercado e logística:** usam dados de exemplo, identificados com selo.
+- **Umidade do solo:** o sensor ainda não está instalado. Quando estiver, o valor deve chegar no `field3` do canal, e o card passa a mostrar o dado.
+- **Logística:** usa dados de exemplo, identificados com selo.
 - **Relatórios:** usam dados de exemplo, identificados com selo.
 - **Previsão:** a janela de colheita é uma estimativa simulada, até existir histórico suficiente.
 - **Marcação de "lido" nos alertas:** fica guardada na sessão do navegador, e não no servidor.
@@ -125,16 +139,20 @@ Todas as telas seguem o mesmo padrão, definido em `js/ui.js`:
 ## Status
 
 - [x] Login e controle de sessão
-- [x] Dashboard com dados da API e atualização automática
+- [x] Dashboard com dados da API, atualização automática e botão Atualizar
+- [x] Última leitura com idade atualizada automaticamente
 - [x] Histórico com gráfico e filtro por status
-- [x] Previsão de colheita
+- [x] Previsão de colheita (estimativa)
 - [x] Alertas e histórico de alertas do servidor
-- [x] Mercado e logística (com dados de exemplo)
-- [x] Relatórios (com dados de exemplo, restritos ao administrador)
+- [x] Mercado com dados simulados da API
+- [x] Logística com dados de exemplo
+- [x] Relatórios com dados de exemplo, restritos ao administrador
+- [x] Usuários: listar, cadastrar e alterar perfil
 - [x] Configurações
 - [x] Padronização visual das telas (`ui.js`)
 - [x] Controle de acesso por perfil com aviso
-- [ ] Mercado e logística com dados reais
+- [ ] Atualização automática e botão Atualizar nas demais telas
+- [ ] Logística com dados reais
 - [ ] Relatórios com dados reais
 - [ ] Configurações gravadas no servidor
 - [ ] Marcação de "lido" gravada no servidor
@@ -142,8 +160,8 @@ Todas as telas seguem o mesmo padrão, definido em `js/ui.js`:
 
 ## Repositórios relacionados
 
-- **Back-end:** `VidSense-Back`, API FastAPI com autenticação, RBAC, ingestão do ThingSpeak, previsão e alertas.
-- **IoT:** ESP32 com sensor DHT, publicando no canal ThingSpeak 3500405.
+- **Back-end:** `VidSense-Back`, API FastAPI com autenticação, RBAC, ingestão do ThingSpeak, previsão, alertas, mercado e gestão de usuários.
+- **IoT:** ESP32 com sensor DHT e sensor de umidade do solo, publicando no canal ThingSpeak 3500405.
 
 ## Equipe
 
