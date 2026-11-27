@@ -4,6 +4,9 @@ let grafico;
 
 // Atualização automática: de quanto em quanto tempo buscar dados novos
 const INTERVALO_MS = 30000; // 30 segundos
+// Atualização do texto "Última leitura" (idade da leitura, calculada no navegador)
+const INTERVALO_IDADE_MS = 15000; // 15 segundos
+const STALE_MIN = 60; // minutos para considerar a leitura desatualizada
 
 const sessao = getSessao();
 const podeHistorico = sessao?.perfil !== "produtor_exportador";
@@ -19,7 +22,9 @@ const normalizar = (l) => ({
 let periodoAtual = 24; // período do gráfico (24 = 24 h, 7 = 7 dias)
 let atualizando = false;
 let timerAuto = null;
+let timerIdade = null;
 let falhouAtual = false;
+let ultimaLeituraIso = null; // data da última leitura recebida da API
 let leituraDesatualizada = false; // usado pelos alertas para não mostrar "0" sem dado novo
 
 // Em 7 dias, o rótulo precisa mostrar a data; em 24 h, só a hora
@@ -60,6 +65,32 @@ function formatarTempoDecorrido(minutos) {
   return `${dias} dias`;
 }
 
+// Atualiza o texto da última leitura e o selo, com a idade calculada agora
+function renderUltimaLeitura() {
+  const el = $("ultima-leitura");
+  if (!el || !ultimaLeituraIso) return;
+
+  const minutos = Math.max(0, Math.floor((Date.now() - new Date(ultimaLeituraIso).getTime()) / 60000));
+  leituraDesatualizada = minutos > STALE_MIN;
+  const dataHora = formatarDataHora(ultimaLeituraIso);
+
+  const selo = $("k-temp-selo");
+  if (selo) {
+    selo.textContent = leituraDesatualizada ? "Dados antigos da API" : "Dados da API";
+    selo.className = `tag ${leituraDesatualizada ? "warn" : "inf"}`;
+  }
+
+  if (leituraDesatualizada) {
+    el.innerHTML = `
+      <div class="aviso-stale">
+        <span class="dot warn"></span>
+        <span>Sem dados recentes — última leitura há ${UI.esc(formatarTempoDecorrido(minutos))} (${UI.esc(dataHora)})</span>
+      </div>`;
+  } else {
+    el.innerHTML = `<span class="rot">Última leitura: ${UI.esc(dataHora)} · há ${UI.esc(formatarTempoDecorrido(minutos))}</span>`;
+  }
+}
+
 async function carregarAtual() {
   let dados;
   try {
@@ -87,34 +118,9 @@ async function carregarAtual() {
     }
   }
 
-  // Dado desatualizado: calcula uma vez e usa em todos os lugares
-  let defasagem = atual.defasagem_minutos;
-  if (defasagem == null && atual.registrado_em) {
-    defasagem = Math.floor((Date.now() - new Date(atual.registrado_em).getTime()) / 60000);
-  }
-  leituraDesatualizada = atual.desatualizado ?? (defasagem > 60);
-
-  // Selo da temperatura: indica quando o dado é antigo
-  const selo = $("k-temp-selo");
-  if (selo) {
-    selo.textContent = leituraDesatualizada ? "Dados antigos da API" : "Dados da API";
-    selo.className = `tag ${leituraDesatualizada ? "warn" : "inf"}`;
-  }
-
-  // Última leitura
-  const elLeitura = $("ultima-leitura");
-  if (elLeitura && atual.registrado_em) {
-    const dataHora = formatarDataHora(atual.registrado_em);
-    if (leituraDesatualizada) {
-      elLeitura.innerHTML = `
-        <div class="aviso-stale">
-          <span class="dot warn"></span>
-          <span>Sem dados recentes — última leitura há ${escapeHTML(formatarTempoDecorrido(defasagem))} (${escapeHTML(dataHora)})</span>
-        </div>`;
-    } else {
-      elLeitura.innerHTML = `<span class="rot">Última leitura: ${escapeHTML(dataHora)}</span>`;
-    }
-  }
+  // Guarda a data da leitura: o texto é recalculado a cada 15 s pelo temporizador
+  ultimaLeituraIso = atual.registrado_em || null;
+  renderUltimaLeitura();
 
   return atual;
 }
@@ -148,9 +154,9 @@ async function carregarAlertas(desatualizado) {
     }
     lista.innerHTML = avisos.slice(0, 3).map((alerta) => `
       <li>
-        <span class="dot ${escapeHTML(alerta.tipo)}"></span>
-        <div><strong>${escapeHTML(alerta.titulo)}</strong>
-        <small>${escapeHTML(alerta.desc)} · ${escapeHTML(alerta.quando)}</small></div>
+        <span class="dot ${UI.esc(alerta.tipo)}"></span>
+        <div><strong>${UI.esc(alerta.titulo)}</strong>
+        <small>${UI.esc(alerta.desc)} · ${UI.esc(alerta.quando)}</small></div>
       </li>`).join("");
   } catch (e) {
     $("k-alertas").textContent = "--";
@@ -247,7 +253,7 @@ function desenharTabela(leituras) {
   $("linhas").innerHTML = ultimas.map((l) => {
     const alta = l.umidade > 75;
     return `<tr>
-      <td>${escapeHTML(formatarDataHora(l.registrado_em))}</td>
+      <td>${UI.esc(formatarDataHora(l.registrado_em))}</td>
       <td>${l.temperatura != null ? l.temperatura.toFixed(1) + "°C" : "--"}</td>
       <td>${l.umidade != null ? Math.round(l.umidade) + "%" : "--"}</td>
       <td><span class="tag ${alta ? "warn" : "ok"}">${alta ? "Atenção" : "Normal"}</span></td>
@@ -313,6 +319,7 @@ async function atualizarTudo() {
 function iniciarAuto() {
   pararAuto();
   timerAuto = setInterval(atualizarTudo, INTERVALO_MS);
+  if (!timerIdade) timerIdade = setInterval(renderUltimaLeitura, INTERVALO_IDADE_MS);
 }
 function pararAuto() {
   if (timerAuto) clearInterval(timerAuto);
